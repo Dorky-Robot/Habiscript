@@ -1,0 +1,30 @@
+{
+  "name": "nestml",
+  "version": "1.0.0",
+  "description": "Convert nested array structures into HTML elements.",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/nestml.git"
+  },
+  "keywords": [
+    "html",
+    "conversion",
+    "markup",
+    "template",
+    "arrays"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/nestml/issues"
+  },
+  "homepage": "https://github.com/yourusername/nestml#readme",
+  "dependencies": {
+    "jsdom": "^23.0.1"
+  }
+}
