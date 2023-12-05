@@ -12,7 +12,7 @@ export function createElement(tag, attrs = {}, children) {
     }
   }
 
-  children.flat().forEach((child) => {
+  for (const child of children) {
     if (typeof child === "string") {
       element.appendChild(document.createTextNode(child));
     } else if (child instanceof Node) {
@@ -20,7 +20,7 @@ export function createElement(tag, attrs = {}, children) {
     } else if (Array.isArray(child)) {
       element.appendChild(nestmlToHtml(child));
     }
-  });
+  }
 
   return element;
 }
@@ -58,13 +58,51 @@ export function nestmlToHtml(nestml) {
     Object.assign(attrs, rest.shift());
   }
 
-  const children = rest.map((child) => {
-    if (Array.isArray(child)) {
-      return nestmlToHtml(child);
-    } else {
-      return typeof child === "string" ? document.createTextNode(child) : child;
-    }
-  });
+  const children = rest.flatMap((child) =>
+    Array.isArray(child)
+      ? nestmlToHtml(child)
+      : typeof child === "string"
+      ? document.createTextNode(child)
+      : child
+  );
 
   return createElement(tag, attrs, children);
+}
+
+export function htmlToNestml(element) {
+  if (typeof element === "string") {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(element, "text/html");
+    return htmlToNestml(doc.body.firstChild);
+  }
+
+  if (element.nodeType === Node.TEXT_NODE) {
+    return element.textContent;
+  }
+
+  let tag = element.tagName.toLowerCase();
+  if (element.id) {
+    tag += `#${element.id}`;
+  }
+  if (element.className) {
+    tag += `.${element.className.split(" ").join(".")}`;
+  }
+
+  const nestml = [tag];
+  const attributes = {};
+  for (const attr of element.attributes) {
+    if (attr.name !== "class" && attr.name !== "id") {
+      attributes[attr.name] = attr.value;
+    }
+  }
+
+  if (Object.keys(attributes).length > 0) {
+    nestml.push(attributes);
+  }
+
+  for (const child of element.childNodes) {
+    nestml.push(htmlToNestml(child));
+  }
+
+  return nestml;
 }
