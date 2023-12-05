@@ -233,7 +233,37 @@ const testNestedElementsAndAttributes = () => {
   );
 };
 
+const testNestmlToHtmlAndBack = () => {
+  // Define your initial NestML structure
+  const initialNestml = [
+    "div",
+    ["p", "I am a component!"],
+    [
+      "p.someclass",
+      "I have ",
+      ["strong", "bold"],
+      ["span", { style: "color: red;" }, " and red "],
+      "text.",
+    ],
+  ];
+
+  // Convert NestML to HTML
+  const htmlElement = nestmlToHtml(initialNestml);
+
+  // Convert back from HTML to NestML
+  const finalNestml = htmlToNestml(htmlElement);
+
+  // Compare the final NestML with the initial NestML
+  assert.deepStrictEqual(
+    finalNestml,
+    initialNestml,
+    "NestML to HTML and back conversion failed"
+  );
+  console.log("Test passed: NestML to HTML and back conversion is consistent");
+};
+
 // Running all tests
+testNestmlToHtmlAndBack();
 testNestmlToHtml();
 testEmptyElement();
 testNestedElements();
