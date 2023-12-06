@@ -12,7 +12,7 @@ export default {
     },
     {
       file: "dist/nestml.bundle.min.js",
-      format: "umd",
+      format: "iife",
       name: "version",
       plugins: [terser()],
     },
