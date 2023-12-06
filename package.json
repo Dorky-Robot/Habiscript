@@ -1,6 +1,6 @@
 {
   "name": "nestml",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Convert nested array structures into HTML elements and back again.",
   "main": "src/index.js",
   "type": "module",
@@ -24,7 +24,7 @@
     "url": "https://github.com/felixflores/nestml/issues"
   },
   "homepage": "https://github.com/felixflores/nestml#readme",
-  "dependencies": {
+  "devDependencies": {
     "jsdom": "^23.0.1"
   }
 }
