@@ -1,3 +1,5 @@
+![NestML Logo](nestml.jpg)
+
 # NestML Library
 
 NestML is a JavaScript library for converting HTML to a custom NestML syntax and vice versa. It provides a simple and intuitive way to transform HTML structures into a NestML array format and back, making it easier to manipulate and work with HTML in JavaScript applications.
