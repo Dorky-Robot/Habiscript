@@ -1,6 +1,6 @@
 {
   "name": "nestml",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Convert nested array structures into HTML elements and back again.",
   "main": "src/index.js",
   "browser": "dist/nestml.bundle.js",
