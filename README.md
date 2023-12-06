@@ -64,7 +64,7 @@ document.body.appendChild(animatedElement);
 You don't need to install anything if you want to use NestML directly in the browser. Simply include the following `<script>` tag in your HTML:
 
 ```html
-<script src="https://unpkg.com/nestml/dist/nestml.browser.js"></script>
+<script src="https://unpkg.com/nestml/dist/nestml.bundle.js"></script>
 ```
 
 This will load the NestML library and make it available as a global variable `nestml`. Here's how to use it:
@@ -75,7 +75,7 @@ This will load the NestML library and make it available as a global variable `ne
   <head>
     <meta charset="UTF-8" />
     <title>NestML Example</title>
-    <script src="https://unpkg.com/nestml/dist/nestml.browser.js"></script>
+    <script src="https://unpkg.com/nestml/dist/nestml.bundle.js"></script>
   </head>
   <body>
     <script>

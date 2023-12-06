@@ -1,13 +1,13 @@
 {
   "name": "nestml",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Convert nested array structures into HTML elements and back again.",
   "main": "src/index.js",
-  "browser": "dist/nestml.browser.js",
+  "browser": "dist/nestml.bundle.js",
   "type": "module",
   "scripts": {
-    "test": "node test-runner.js",
-    "build": "browserify src/index.js -o dist/nestml.browser.js -s nestml"
+    "build": "rollup -c",
+    "test": "node test-runner.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,9 @@
   },
   "homepage": "https://github.com/felixflores/nestml#readme",
   "devDependencies": {
-    "browserify": "^17.0.0",
-    "jsdom": "^23.0.1"
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "jsdom": "^23.0.1",
+    "rollup": "^4.6.1"
   }
 }
