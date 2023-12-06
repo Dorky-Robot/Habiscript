@@ -67,6 +67,12 @@ You don't need to install anything if you want to use NestML directly in the bro
 <script src="https://unpkg.com/nestml/dist/nestml.bundle.js"></script>
 ```
 
+or
+
+```html
+<script src="https://unpkg.com/nestml/dist/nestml.bundle.min.js"></script>
+```
+
 This will load the NestML library and make it available as a global variable `nestml`. Here's how to use it:
 
 ```html
@@ -75,7 +81,7 @@ This will load the NestML library and make it available as a global variable `ne
   <head>
     <meta charset="UTF-8" />
     <title>NestML Example</title>
-    <script src="https://unpkg.com/nestml/dist/nestml.bundle.js"></script>
+    <script src="https://unpkg.com/nestml/dist/nestml.bundle.min.js"></script>
   </head>
   <body>
     <script>
