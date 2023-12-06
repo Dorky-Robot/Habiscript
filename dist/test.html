@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>NestML Example</title>
+  <script src="nestml.bundle.js"></script>
+</head>
+
+<body>
+  <script>
+    // Convert an HTML string to the NestML array format
+    const htmlString = "<div><p>Hello World</p></div>";
+    const nestmlArray = nestml.htmlToNestml(htmlString);
+    console.log(nestmlArray);
+
+    // Convert a NestML array back to an HTML element
+    const htmlElement = nestml.nestmlToHtml(nestmlArray);
+    document.body.appendChild(htmlElement);
+  </script>
+</body>
+
+</html>
