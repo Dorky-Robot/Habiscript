@@ -59,6 +59,39 @@ const animatedElement = nestmlToHtml(nestmlWithAnimation);
 document.body.appendChild(animatedElement);
 ```
 
+### In the Browser
+
+You don't need to install anything if you want to use NestML directly in the browser. Simply include the following `<script>` tag in your HTML:
+
+```html
+<script src="https://unpkg.com/nestml/dist/nestml.browser.js"></script>
+```
+
+This will load the NestML library and make it available as a global variable `nestml`. Here's how to use it:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NestML Example</title>
+    <script src="https://unpkg.com/nestml/dist/nestml.browser.js"></script>
+  </head>
+  <body>
+    <script>
+      // Convert an HTML string to the NestML array format
+      const htmlString = "<div><p>Hello World</p></div>";
+      const nestmlArray = nestml.htmlToNestml(htmlString);
+      console.log(nestmlArray);
+
+      // Convert a NestML array back to an HTML element
+      const htmlElement = nestml.nestmlToHtml(nestmlArray);
+      document.body.appendChild(htmlElement);
+    </script>
+  </body>
+</html>
+```
+
 ### Advanced Styling
 
 Handling more complex CSS properties:
