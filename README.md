@@ -18,9 +18,9 @@ yarn add nestml
 
 ## Usage
 
-### Convert HTML to NestML
+### Basic Conversion
 
-To convert an HTML string to the NestML array format, use the `htmlToNestml` function:
+Convert an HTML string to the NestML array format:
 
 ```javascript
 import { htmlToNestml } from "nestml";
@@ -30,9 +30,7 @@ const nestmlArray = htmlToNestml(htmlString);
 console.log(nestmlArray);
 ```
 
-### Convert NestML to HTML
-
-To convert a NestML array back to an HTML element, use the `nestmlToHtml` function:
+Convert a NestML array back to an HTML element:
 
 ```javascript
 import { nestmlToHtml } from "nestml";
@@ -40,6 +38,45 @@ import { nestmlToHtml } from "nestml";
 const nestmlArray = ["div", ["p", "Hello World"]];
 const htmlElement = nestmlToHtml(nestmlArray);
 document.body.appendChild(htmlElement);
+```
+
+### Handling CSS with Animations
+
+Demonstrating how to add CSS animations using NestML:
+
+```javascript
+import { nestmlToHtml } from "nestml";
+
+const nestmlWithAnimation = [
+  "div",
+  { style: { animation: "example 5s infinite" } },
+  "Animated content",
+];
+
+const animatedElement = nestmlToHtml(nestmlWithAnimation);
+document.body.appendChild(animatedElement);
+```
+
+### Advanced Styling
+
+Handling more complex CSS properties:
+
+```javascript
+import { nestmlToHtml } from "nestml";
+
+const nestmlWithComplexStyle = [
+  "div",
+  {
+    style: {
+      backgroundColor: "linear-gradient(to right, red, orange)",
+      boxShadow: "0 4px 8px 0 rgba(0,0,0,0.2)",
+    },
+  },
+  "Stylish content",
+];
+
+const stylishElement = nestmlToHtml(nestmlWithComplexStyle);
+document.body.appendChild(stylishElement);
 ```
 
 ## Contributing
@@ -62,3 +99,9 @@ Please ensure your pull request adheres to the following guidelines:
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+## Contact
+
+Felix Flores - felixflores@gmail.com
+
+Project Link: [https://github.com/felixflores/nestml](https://github.com/felixflores/nestml)
