@@ -4,6 +4,28 @@
 
 NestML is a JavaScript library for converting HTML to a custom NestML syntax and vice versa. It provides a simple and intuitive way to transform HTML structures into a NestML array format and back, making it easier to manipulate and work with HTML in JavaScript applications.
 
+## Why use NestML?
+NestML allows you to create truly self-contained web components. Instead of shipping separate CSS, HTML, and Javascript, you can create a single function containing everything. All of this can happen on the browsers.
+
+```javascript
+function Button({ id, className, style, text }) {
+  const handleButtonClick = () => console.log("Button clicked");
+  return [`button#${id}.${className}`, { style, onclick: handleButtonClick }, text];
+}
+
+nestml.nestmlToHtml(
+  [
+    "div",
+    Button({
+      id: "myButton",
+      className: "btn btn-primary",
+      style: { margin: "10px" },
+      text: "Click Me",
+    })
+  ]
+)
+```
+
 ## Installation
 
 To install NestML, you can use npm or yarn as follows:
