@@ -1,23 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>NestML Example</title>
+    <script src="nestml.bundle.js"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>NestML Example</title>
-  <script src="nestml.bundle.js"></script>
-</head>
+  <body>
+    <script>
+      // Convert an HTML string to the NestML array format
+      const htmlString = "<div><p>Hello World</p></div>";
+      const nestmlArray = nestml.htmlToNestml(htmlString);
+      console.log(nestmlArray);
 
-<body>
-  <script>
-    // Convert an HTML string to the NestML array format
-    const htmlString = "<div><p>Hello World</p></div>";
-    const nestmlArray = nestml.htmlToNestml(htmlString);
-    console.log(nestmlArray);
+      // Convert a NestML array back to an HTML element
+      const htmlElement = nestml.nestmlToHtml(nestmlArray);
+      document.body.appendChild(htmlElement);
 
-    // Convert a NestML array back to an HTML element
-    const htmlElement = nestml.nestmlToHtml(nestmlArray);
-    document.body.appendChild(htmlElement);
-  </script>
-</body>
+      const myChannel = new nestml.Channel();
+      myChannel.sub((message) => console.log(message));
+      myChannel.pub("Test message");
 
+      function Button({ id, className, style, onClick, text }) {
+        return [`button#${id}.${className}`, { style, onclick: onClick }, text];
+      }
+
+      function TextBox({ id, className, style, onChange, placeholder }) {
+        return [
+          `input#${id}.${className}`,
+          { type: "text", style, placeholder, onChange: onChange },
+        ];
+      }
+
+      function MyApp() {
+        const handleButtonClick = () => console.log("Button clicked");
+        const handleTextChange = (e) =>
+          console.log("Text changed to:", e.target.value);
+
+        return [
+          "div#app.container",
+          Button({
+            id: "myButton",
+            className: "btn btn-primary",
+            style: { margin: "10px" },
+            onClick: handleButtonClick,
+            text: "Click Me",
+          }),
+          TextBox({
+            id: "myTextBox",
+            className: "form-control",
+            style: { margin: "10px" },
+            onChange: handleTextChange,
+            placeholder: "Enter text here",
+          }),
+        ];
+      }
+
+      // Render MyApp to the DOM
+      document.addEventListener("DOMContentLoaded", () => {
+        const app = nestml.nestmlToHtml(MyApp());
+        document.body.appendChild(app);
+      });
+    </script>
+  </body>
 </html>

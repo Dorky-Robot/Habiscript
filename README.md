@@ -120,6 +120,50 @@ const stylishElement = nestmlToHtml(nestmlWithComplexStyle);
 document.body.appendChild(stylishElement);
 ```
 
+### Instantiable Components
+
+```javascript
+function Button({ id, className, style, onClick, text }) {
+  return [`button#${id}.${className}`, { style, onclick: onClick }, text];
+}
+
+function TextBox({ id, className, style, onChange, placeholder }) {
+  return [
+    `input#${id}.${className}`,
+    { type: "text", style, placeholder, oninput: onChange },
+  ];
+}
+
+function MyApp() {
+  const handleButtonClick = () => console.log("Button clicked");
+  const handleTextChange = (e) => console.log("Text changed:", e.target.value);
+
+  return [
+    "div#app.container",
+    Button({
+      id: "myButton",
+      className: "btn btn-primary",
+      style: { margin: "10px" },
+      onClick: handleButtonClick,
+      text: "Click Me",
+    }),
+    TextBox({
+      id: "myTextBox",
+      className: "form-control",
+      style: { margin: "10px" },
+      onChange: handleTextChange,
+      placeholder: "Enter text here",
+    }),
+  ];
+}
+
+// Render MyApp to the DOM
+document.addEventListener("DOMContentLoaded", () => {
+  const app = nestml.nestmlToHtml(MyApp());
+  document.body.appendChild(app);
+});
+```
+
 ## Contributing
 
 Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.

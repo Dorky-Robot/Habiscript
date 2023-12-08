@@ -7,17 +7,42 @@
   const classRegex = /\.[^.#]+/g;
   const idRegex = /#[^.#]+/;
 
+  class Channel {
+    constructor() {
+      this.subscribers = [];
+    }
+
+    // Subscribe to the channel
+    sub(callback) {
+      this.subscribers.push(callback);
+    }
+
+    // Unsubscribe from the channel
+    unsub(callback) {
+      this.subscribers = this.subscribers.filter(sub => sub !== callback);
+    }
+
+    // Publish an event to all subscribers
+    pub(event) {
+      this.subscribers.forEach(sub => sub(event));
+    }
+  }
+
   function createElement(tag, attrs = {}, children) {
     const element = document.createElement(tag);
 
     for (const [attr, value] of Object.entries(attrs)) {
       if (attr === "style" && typeof value === "object") {
         Object.assign(element.style, value);
+      } else if (typeof value === "function" && attr.startsWith('on')) {
+        const event = attr.substring(2).toLowerCase();
+        element.addEventListener(event, value);
       } else if (value !== undefined) {
         element.setAttribute(attr, value);
       }
     }
 
+    // Append children
     for (const child of children) {
       if (typeof child === "string") {
         element.appendChild(document.createTextNode(child));
@@ -46,7 +71,7 @@
       const idMatch = first.match(idRegex);
 
       if (classMatch) {
-        attrs.class = classMatch.map((c) => c.substring(1)).join(" ");
+        attrs.class = classMatch.map(c => c.substring(1)).join(" ");
       }
 
       if (idMatch) {
@@ -56,24 +81,17 @@
       throw new Error("The first element of the nestml array must be a string.");
     }
 
-    if (
-      rest.length > 0 &&
-      typeof rest[0] === "object" &&
-      !Array.isArray(rest[0])
-    ) {
+    if (rest.length > 0 && typeof rest[0] === "object" && !Array.isArray(rest[0])) {
       Object.assign(attrs, rest.shift());
     }
 
-    const children = rest.flatMap((child) =>
-      Array.isArray(child)
-        ? nestmlToHtml(child)
-        : typeof child === "string"
-        ? document.createTextNode(child)
-        : child
+    const children = rest.flatMap(child =>
+      Array.isArray(child) ? nestmlToHtml(child) : child
     );
 
     return createElement(tag, attrs, children);
   }
+
 
   function htmlToNestml(element) {
     if (typeof element === "string") {
@@ -113,6 +131,7 @@
     return nestml;
   }
 
+  exports.Channel = Channel;
   exports.classRegex = classRegex;
   exports.createElement = createElement;
   exports.htmlToNestml = htmlToNestml;

@@ -14,7 +14,13 @@ export default {
       file: "dist/nestml.bundle.min.js",
       format: "umd",
       name: "nestml",
-      plugins: [terser()],
+      plugins: [
+        terser({
+          mangle: {
+            reserved: ['sub', 'pub', 'unsub'] // Prevent these names from being mangled
+          }
+        }),
+      ],
     },
   ],
   plugins: [resolve(), commonjs()],
