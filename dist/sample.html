@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NestML Display Input Example</title>
+    <script src="nestml.bundle.js"></script>
+  </head>
+  <body>
+    <script>
+      function ImageUploader() {
+        let images = [];
+        let currentIndex = 0;
+
+        const handleDrop = (event) => {
+          event.preventDefault();
+          const files = event.dataTransfer.files;
+          images = Array.from(files).filter((file) =>
+            file.type.startsWith("image/")
+          );
+          processNextImage();
+        };
+
+        const processNextImage = () => {
+          if (currentIndex < images.length) {
+            // Process the current image
+            // For example, upload it to a server, display it, etc.
+            // After processing, increment currentIndex and call processNextImage again
+            currentIndex++;
+            processNextImage();
+          }
+        };
+
+        const render = () =>
+          nestml.nestmlToHtml([
+            "div",
+            {
+              style: {
+                border: "2px dashed grey",
+                padding: "20px",
+                textAlign: "center",
+              },
+              ondragover: (e) => e.preventDefault(),
+              ondrop: handleDrop,
+            },
+            "Drag and drop images here",
+          ]);
+
+        return render();
+      }
+
+      document.body.appendChild(nestml.nestmlToHtml(ImageUploader()));
+    </script>
+  </body>
+</html>

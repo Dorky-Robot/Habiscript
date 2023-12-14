@@ -13,12 +13,12 @@ export class Channel {
 
   // Unsubscribe from the channel
   unsub(callback) {
-    this.subscribers = this.subscribers.filter(sub => sub !== callback);
+    this.subscribers = this.subscribers.filter((sub) => sub !== callback);
   }
 
   // Publish an event to all subscribers
   pub(event) {
-    this.subscribers.forEach(sub => sub(event));
+    this.subscribers.forEach((sub) => sub(event));
   }
 }
 
@@ -28,7 +28,7 @@ export function createElement(tag, attrs = {}, children) {
   for (const [attr, value] of Object.entries(attrs)) {
     if (attr === "style" && typeof value === "object") {
       Object.assign(element.style, value);
-    } else if (typeof value === "function" && attr.startsWith('on')) {
+    } else if (typeof value === "function" && attr.startsWith("on")) {
       const event = attr.substring(2).toLowerCase();
       element.addEventListener(event, value);
     } else if (value !== undefined) {
@@ -53,6 +53,8 @@ export function createElement(tag, attrs = {}, children) {
 export function nestmlToHtml(nestml) {
   if (typeof nestml === "string") {
     return document.createTextNode(nestml);
+  } else if (nestml instanceof Node) {
+    return nestml;
   }
 
   const [first, ...rest] = nestml;
@@ -65,7 +67,7 @@ export function nestmlToHtml(nestml) {
     const idMatch = first.match(idRegex);
 
     if (classMatch) {
-      attrs.class = classMatch.map(c => c.substring(1)).join(" ");
+      attrs.class = classMatch.map((c) => c.substring(1)).join(" ");
     }
 
     if (idMatch) {
@@ -75,17 +77,20 @@ export function nestmlToHtml(nestml) {
     throw new Error("The first element of the nestml array must be a string.");
   }
 
-  if (rest.length > 0 && typeof rest[0] === "object" && !Array.isArray(rest[0])) {
+  if (
+    rest.length > 0 &&
+    typeof rest[0] === "object" &&
+    !Array.isArray(rest[0])
+  ) {
     Object.assign(attrs, rest.shift());
   }
 
-  const children = rest.flatMap(child =>
+  const children = rest.flatMap((child) =>
     Array.isArray(child) ? nestmlToHtml(child) : child
   );
 
   return createElement(tag, attrs, children);
 }
-
 
 export function htmlToNestml(element) {
   if (typeof element === "string") {

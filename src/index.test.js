@@ -262,7 +262,38 @@ const testNestmlToHtmlAndBack = () => {
   console.log("Test passed: NestML to HTML and back conversion is consistent");
 };
 
+const edgeCase1 = () => {
+  const handleDrop = () => {};
+  const handleDragOver = () => {};
+
+  const nestml = [
+    "div",
+    {
+      style: {
+        border: "2px dashed grey",
+        padding: "20px",
+        textAlign: "center",
+      },
+      ondragover: handleDragOver,
+      ondrop: handleDrop,
+    },
+    "Drag and drop images here",
+  ];
+
+  const htmlElement = nestmlToHtml(nestml);
+  const divElement = document.createElement("div");
+  divElement.appendChild(htmlElement);
+
+  assert.strictEqual(
+    divElement.innerHTML.trim(),
+    '<div style="border: 2px dashed grey; padding: 20px; text-align: center;">Drag and drop images here</div>'
+  );
+
+  console.log("Test passed: Edgecase 1.");
+};
+
 // Running all tests
+edgeCase1();
 testNestmlToHtmlAndBack();
 testNestmlToHtml();
 testEmptyElement();
