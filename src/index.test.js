@@ -1,311 +1,233 @@
 import { JSDOM } from "jsdom";
-import assert from "assert";
 import { nestmlToHtml, htmlToNestml } from "./index.js";
 
-// Create a JSDOM instance
-const { window } = new JSDOM("");
+describe("NESTML Conversion Tests", () => {
+  let document;
 
-// Assign document and Node to global scope
-global.document = window.document;
-global.Node = window.Node;
+  beforeAll(() => {
+    // Setup JSDOM
+    const jsdom = new JSDOM("");
+    global.document = jsdom.window.document;
+    global.Node = jsdom.window.Node;
+    document = jsdom.window.document;
+  });
 
-// Your test cases
-const testNestmlToHtml = () => {
-  const nestml = [
-    "div",
-    ["p", "I am a component!"],
-    [
-      "p.someclass",
-      "I have ",
-      ["strong", "bold"],
-      ["span", { style: { color: "red" } }, " and red "],
-      "text.",
-    ],
-  ];
+  test("nestmlToHtml() converts nestml to HTML correctly", () => {
+    const nestml = [
+      "div",
+      ["p", "I am a component!"],
+      [
+        "p.someclass",
+        "I have ",
+        ["strong", "bold"],
+        ["span", { style: { color: "red" } }, " and red "],
+        "text.",
+      ],
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(), // Use .trim() to remove any leading/trailing whitespace
-    '<div><p>I am a component!</p><p class="someclass">I have <strong>bold</strong><span style="color: red;"> and red </span>text.</p></div>'
-  );
+    expect(divElement.innerHTML.trim()).toBe(
+      '<div><p>I am a component!</p><p class="someclass">I have <strong>bold</strong><span style="color: red;"> and red </span>text.</p></div>'
+    );
+  });
 
-  console.log("Test passed: nestmlToHtml() correctly converts nestml to HTML.");
-};
+  test("Empty Element renders correctly", () => {
+    const nestml = ["div"];
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-const testEmptyElement = () => {
-  const nestml = ["div"];
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    expect(divElement.innerHTML.trim()).toBe("<div></div>");
+  });
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    "<div></div>",
-    "Empty element test failed"
-  );
-  console.log("Test passed: Empty element rendered correctly.");
-};
+  test("Nested Elements render correctly", () => {
+    const nestml = ["div", ["span", ["strong", "Nested content"]]];
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-const testNestedElements = () => {
-  const nestml = ["div", ["span", ["strong", "Nested content"]]];
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    expect(divElement.innerHTML.trim()).toBe(
+      "<div><span><strong>Nested content</strong></span></div>"
+    );
+  });
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    "<div><span><strong>Nested content</strong></span></div>",
-    "Nested elements test failed"
-  );
-  console.log("Test passed: Nested elements rendered correctly.");
-};
+  test("Element with Attributes renders correctly", () => {
+    const nestml = ["div", { id: "testId", class: "testClass" }, "Content"];
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-const testElementWithAttributes = () => {
-  const nestml = ["div", { id: "testId", class: "testClass" }, "Content"];
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    expect(divElement.innerHTML.trim()).toBe(
+      '<div id="testId" class="testClass">Content</div>'
+    );
+  });
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    '<div id="testId" class="testClass">Content</div>',
-    "Element with attributes test failed"
-  );
-  console.log("Test passed: Element with attributes rendered correctly.");
-};
+  test("Invalid Input throws an error", () => {
+    expect(() => {
+      nestmlToHtml(null);
+    }).toThrow();
+  });
 
-const testInvalidInput = () => {
-  try {
-    const nestml = null;
-    nestmlToHtml(nestml);
-    assert.fail("Should have thrown an error for null input");
-  } catch (error) {
-    console.log("Test passed: Invalid input correctly throws an error.");
-  }
-};
-
-const testComplexInlineCSS = () => {
-  const nestml = [
-    "div",
-    {
-      style: {
-        backgroundColor: "blue",
-        color: "white",
-        border: "1px solid black",
+  test("Complex Inline CSS renders correctly", () => {
+    const nestml = [
+      "div",
+      {
+        style: {
+          backgroundColor: "blue",
+          color: "white",
+          border: "1px solid black",
+        },
       },
-    },
-    "Styled content",
-  ];
+      "Styled content",
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  const expectedStyle =
-    "background-color: blue; color: white; border: 1px solid black;";
-  assert.strictEqual(
-    htmlElement.getAttribute("style"),
-    expectedStyle,
-    "Complex inline CSS test failed"
-  );
-  console.log("Test passed: Complex inline CSS rendered correctly.");
-};
+    const expectedStyle =
+      "background-color: blue; color: white; border: 1px solid black;";
+    expect(htmlElement.getAttribute("style")).toBe(expectedStyle);
+  });
 
-const testCSSAnimations = () => {
-  const nestml = [
-    "div",
-    {
-      style: {
-        animation: "example 5s infinite",
+  test("CSS Animations render correctly", () => {
+    const nestml = [
+      "div",
+      {
+        style: {
+          animation: "example 5s infinite",
+        },
       },
-    },
-    "Animated content",
-  ];
+      "Animated content",
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  const expectedStyle = "animation: example 5s infinite;";
-  assert.strictEqual(
-    htmlElement.getAttribute("style"),
-    expectedStyle,
-    "CSS animations test failed"
-  );
-  console.log("Test passed: CSS animations rendered correctly.");
-};
+    const expectedStyle = "animation: example 5s infinite;";
+    expect(htmlElement.getAttribute("style")).toBe(expectedStyle);
+  });
 
-const testElementTypes = () => {
-  const nestml = [
-    "header",
-    ["main", ["article", "Article content"]],
-    ["footer", "Footer content"],
-  ];
+  test("Various Element Types are handled correctly", () => {
+    const nestml = [
+      "header",
+      ["main", ["article", "Article content"]],
+      ["footer", "Footer content"],
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    "<header><main><article>Article content</article></main><footer>Footer content</footer></header>",
-    "Handling of various element types failed"
-  );
-  console.log("Test passed: Various element types handled correctly.");
-};
+    expect(divElement.innerHTML.trim()).toBe(
+      "<header><main><article>Article content</article></main><footer>Footer content</footer></header>"
+    );
+  });
 
-const testComplexNesting = () => {
-  const nestml = [
-    "div.wrapper",
-    { id: "main-container" },
-    ["header#top-header.navbar", "Header content"],
-    [
-      "main",
-      ["section#content.section", { style: { color: "blue" } }, "Main content"],
-    ],
-    ["footer", "Footer content"],
-  ];
+  test("Complex Nesting and Attributes render correctly", () => {
+    const nestml = [
+      "div.wrapper",
+      { id: "main-container" },
+      ["header#top-header.navbar", "Header content"],
+      [
+        "main",
+        [
+          "section#content.section",
+          { style: { color: "blue" } },
+          "Main content",
+        ],
+      ],
+      ["footer", "Footer content"],
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    '<div class="wrapper" id="main-container"><header class="navbar" id="top-header">Header content</header><main><section class="section" id="content" style="color: blue;">Main content</section></main><footer>Footer content</footer></div>',
-    "Complex nesting and attributes test failed"
-  );
-  console.log(
-    "Test passed: Complex nesting and attributes rendered correctly."
-  );
-};
+    expect(divElement.innerHTML.trim()).toBe(
+      '<div class="wrapper" id="main-container"><header class="navbar" id="top-header">Header content</header><main><section class="section" id="content" style="color: blue;">Main content</section></main><footer>Footer content</footer></div>'
+    );
+  });
 
-const testBasicHtmlToNestml = () => {
-  const htmlString = '<div><p class="text">Hello World</p></div>';
-  const element = new JSDOM(htmlString).window.document.body.firstChild;
+  test("Basic HTML to NESTML conversion is successful", () => {
+    const htmlString = '<div><p class="text">Hello World</p></div>';
+    const element = new JSDOM(htmlString).window.document.body.firstChild;
+    const nestml = htmlToNestml(element);
 
-  const nestml = htmlToNestml(element);
+    expect(nestml).toStrictEqual(["div", ["p.text", "Hello World"]]);
+  });
 
-  assert.deepStrictEqual(
-    nestml,
-    ["div", ["p.text", "Hello World"]],
-    "Basic HTML to NESTML conversion failed"
-  );
-  console.log("Test passed: Basic HTML to NESTML conversion successful.");
-};
+  test("Complex HTML structure conversion is successful", () => {
+    const htmlString =
+      '<div id="container"><section class="content">Content here</section><footer>Footer</footer></div>';
+    const element = new JSDOM(htmlString).window.document.body.firstChild;
+    const nestml = htmlToNestml(element);
 
-const testComplexHtmlToNestml = () => {
-  const htmlString =
-    '<div id="container"><section class="content">Content here</section><footer>Footer</footer></div>';
-  const element = new JSDOM(htmlString).window.document.body.firstChild;
-
-  const nestml = htmlToNestml(element);
-
-  assert.deepStrictEqual(
-    nestml,
-    [
+    expect(nestml).toStrictEqual([
       "div#container",
       ["section.content", "Content here"],
       ["footer", "Footer"],
-    ],
-    "Complex HTML structure conversion failed"
-  );
-  console.log("Test passed: Complex HTML structure conversion successful.");
-};
+    ]);
+  });
 
-const testNestedElementsAndAttributes = () => {
-  const htmlString =
-    '<div><ul class="list"><li id="item1">Item 1</li><li>Item 2</li></ul></div>';
-  const element = new JSDOM(htmlString).window.document.body.firstChild;
+  test("Nested Elements and Attributes conversion is successful", () => {
+    const htmlString =
+      '<div><ul class="list"><li id="item1">Item 1</li><li>Item 2</li></ul></div>';
+    const element = new JSDOM(htmlString).window.document.body.firstChild;
+    const nestml = htmlToNestml(element);
 
-  const nestml = htmlToNestml(element);
+    expect(nestml).toStrictEqual([
+      "div",
+      ["ul.list", ["li#item1", "Item 1"], ["li", "Item 2"]],
+    ]);
+  });
 
-  assert.deepStrictEqual(
-    nestml,
-    ["div", ["ul.list", ["li#item1", "Item 1"], ["li", "Item 2"]]],
-    "Nested elements and attributes conversion failed"
-  );
-  console.log(
-    "Test passed: Nested elements and attributes conversion successful."
-  );
-};
+  test("NESTML to HTML and back conversion is consistent", () => {
+    const initialNestml = [
+      "div",
+      ["p", "I am a component!"],
+      [
+        "p.someclass",
+        "I have ",
+        ["strong", "bold"],
+        ["span", { style: "color: red;" }, " and red "],
+        "text.",
+      ],
+    ];
 
-const testNestmlToHtmlAndBack = () => {
-  // Define your initial NestML structure
-  const initialNestml = [
-    "div",
-    ["p", "I am a component!"],
-    [
-      "p.someclass",
-      "I have ",
-      ["strong", "bold"],
-      ["span", { style: "color: red;" }, " and red "],
-      "text.",
-    ],
-  ];
+    const htmlElement = nestmlToHtml(initialNestml);
+    const finalNestml = htmlToNestml(htmlElement);
+    expect(finalNestml).toStrictEqual(initialNestml);
+  });
 
-  // Convert NestML to HTML
-  const htmlElement = nestmlToHtml(initialNestml);
+  test("Edge Case 1", () => {
+    const handleDrop = () => {};
+    const handleDragOver = () => {};
 
-  // Convert back from HTML to NestML
-  const finalNestml = htmlToNestml(htmlElement);
-
-  // Compare the final NestML with the initial NestML
-  assert.deepStrictEqual(
-    finalNestml,
-    initialNestml,
-    "NestML to HTML and back conversion failed"
-  );
-  console.log("Test passed: NestML to HTML and back conversion is consistent");
-};
-
-const edgeCase1 = () => {
-  const handleDrop = () => {};
-  const handleDragOver = () => {};
-
-  const nestml = [
-    "div",
-    {
-      style: {
-        border: "2px dashed grey",
-        padding: "20px",
-        textAlign: "center",
+    const nestml = [
+      "div",
+      {
+        style: {
+          border: "2px dashed grey",
+          padding: "20px",
+          textAlign: "center",
+        },
+        ondragover: handleDragOver,
+        ondrop: handleDrop,
       },
-      ondragover: handleDragOver,
-      ondrop: handleDrop,
-    },
-    "Drag and drop images here",
-  ];
+      "Drag and drop images here",
+    ];
 
-  const htmlElement = nestmlToHtml(nestml);
-  const divElement = document.createElement("div");
-  divElement.appendChild(htmlElement);
+    const htmlElement = nestmlToHtml(nestml);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
 
-  assert.strictEqual(
-    divElement.innerHTML.trim(),
-    '<div style="border: 2px dashed grey; padding: 20px; text-align: center;">Drag and drop images here</div>'
-  );
-
-  console.log("Test passed: Edgecase 1.");
-};
-
-// Running all tests
-edgeCase1();
-testNestmlToHtmlAndBack();
-testNestmlToHtml();
-testEmptyElement();
-testNestedElements();
-testElementWithAttributes();
-testInvalidInput();
-testComplexInlineCSS();
-testCSSAnimations();
-testElementTypes();
-testComplexNesting();
-testBasicHtmlToNestml();
-testComplexHtmlToNestml();
-testNestedElementsAndAttributes();
-
-console.log("All tests completed.");
+    expect(divElement.innerHTML.trim()).toBe(
+      '<div style="border: 2px dashed grey; padding: 20px; text-align: center;">Drag and drop images here</div>'
+    );
+  });
+});
