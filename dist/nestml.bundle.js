@@ -1,34 +1,11 @@
-console.log("Hello from nestml.bundle.js");
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-    typeof define === 'function' && define.amd ? define(['exports'], factory) :
-      (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.nestml = {}));
-})(this, (function (exports) {
-  'use strict';
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.nestml = {}));
+})(this, (function (exports) { 'use strict';
 
   const classRegex = /\.[^.#]+/g;
   const idRegex = /#[^.#]+/;
-
-  class Channel {
-    constructor() {
-      this.subscribers = [];
-    }
-
-    // Subscribe to the channel
-    sub(callback) {
-      this.subscribers.push(callback);
-    }
-
-    // Unsubscribe from the channel
-    unsub(callback) {
-      this.subscribers = this.subscribers.filter((sub) => sub !== callback);
-    }
-
-    // Publish an event to all subscribers
-    pub(event) {
-      this.subscribers.forEach((sub) => sub(event));
-    }
-  }
 
   function createElement(tag, attrs = {}, children) {
     const element = document.createElement(tag);
@@ -138,7 +115,6 @@ console.log("Hello from nestml.bundle.js");
     return nestml;
   }
 
-  exports.Channel = Channel;
   exports.classRegex = classRegex;
   exports.createElement = createElement;
   exports.htmlToNestml = htmlToNestml;

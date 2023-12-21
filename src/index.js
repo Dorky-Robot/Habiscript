@@ -1,27 +1,6 @@
 export const classRegex = /\.[^.#]+/g;
 export const idRegex = /#[^.#]+/;
 
-export class Channel {
-  constructor() {
-    this.subscribers = [];
-  }
-
-  // Subscribe to the channel
-  sub(callback) {
-    this.subscribers.push(callback);
-  }
-
-  // Unsubscribe from the channel
-  unsub(callback) {
-    this.subscribers = this.subscribers.filter((sub) => sub !== callback);
-  }
-
-  // Publish an event to all subscribers
-  pub(event) {
-    this.subscribers.forEach((sub) => sub(event));
-  }
-}
-
 export function createElement(tag, attrs = {}, children) {
   const element = document.createElement(tag);
 
@@ -58,8 +37,7 @@ export function nestmlToHtml(nestml) {
   }
 
   const [first, ...rest] = nestml;
-  let tag,
-    attrs = {};
+  let tag, attrs = {};
 
   if (typeof first === "string") {
     tag = first.split(/[#.]/)[0];
@@ -77,11 +55,7 @@ export function nestmlToHtml(nestml) {
     throw new Error("The first element of the nestml array must be a string.");
   }
 
-  if (
-    rest.length > 0 &&
-    typeof rest[0] === "object" &&
-    !Array.isArray(rest[0])
-  ) {
+  if (rest.length > 0 && typeof rest[0] === "object" && !Array.isArray(rest[0])) {
     Object.assign(attrs, rest.shift());
   }
 

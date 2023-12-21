@@ -15,11 +15,7 @@ export default {
       format: "umd",
       name: "nestml",
       plugins: [
-        terser({
-          mangle: {
-            reserved: ['sub', 'pub', 'unsub'] // Prevent these names from being mangled
-          }
-        }),
+        terser({}),
       ],
     },
   ],
