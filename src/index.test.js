@@ -1,5 +1,5 @@
-import { JSDOM } from "jsdom";
-import { nestmlToHtml, htmlToNestml } from "./index.js";
+const { JSDOM } = require("jsdom");
+const { nestMLToHtml, htmlToNestML } = require("./index.js");
 
 describe("NESTML Conversion Tests", () => {
   let document;
@@ -12,7 +12,7 @@ describe("NESTML Conversion Tests", () => {
     document = jsdom.window.document;
   });
 
-  test("nestmlToHtml() converts nestml to HTML correctly", () => {
+  test("nestMLToHtml() converts nestml to HTML correctly", () => {
     const nestml = [
       "div",
       ["p", "I am a component!"],
@@ -20,12 +20,12 @@ describe("NESTML Conversion Tests", () => {
         "p.someclass",
         "I have ",
         ["strong", "bold"],
-        ["span", { style: { color: "red" } }, " and red "],
+        ["span", { style: ["color", "red"] }, " and red "],
         "text.",
       ],
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -36,7 +36,7 @@ describe("NESTML Conversion Tests", () => {
 
   test("Empty Element renders correctly", () => {
     const nestml = ["div"];
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -45,7 +45,7 @@ describe("NESTML Conversion Tests", () => {
 
   test("Nested Elements render correctly", () => {
     const nestml = ["div", ["span", ["strong", "Nested content"]]];
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -56,7 +56,7 @@ describe("NESTML Conversion Tests", () => {
 
   test("Element with Attributes renders correctly", () => {
     const nestml = ["div", { id: "testId", class: "testClass" }, "Content"];
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -67,7 +67,7 @@ describe("NESTML Conversion Tests", () => {
 
   test("Invalid Input throws an error", () => {
     expect(() => {
-      nestmlToHtml(null);
+      nestMLToHtml(null);
     }).toThrow();
   });
 
@@ -75,16 +75,16 @@ describe("NESTML Conversion Tests", () => {
     const nestml = [
       "div",
       {
-        style: {
-          backgroundColor: "blue",
-          color: "white",
-          border: "1px solid black",
-        },
+        style: [
+          ['backgroundColor', 'blue'],
+          ['color', 'white'],
+          ['border', '1px', 'solid', 'black'],
+        ],
       },
       "Styled content",
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -96,19 +96,15 @@ describe("NESTML Conversion Tests", () => {
   test("CSS Animations render correctly", () => {
     const nestml = [
       "div",
-      {
-        style: {
-          animation: "example 5s infinite",
-        },
-      },
+      { style: ["animation", { func: ["example", "5s", "infinite"] }] },
       "Animated content",
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
-    const expectedStyle = "animation: example 5s infinite;";
+    const expectedStyle = "animation: example(5s,infinite);";
     expect(htmlElement.getAttribute("style")).toBe(expectedStyle);
   });
 
@@ -119,7 +115,7 @@ describe("NESTML Conversion Tests", () => {
       ["footer", "Footer content"],
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -137,14 +133,14 @@ describe("NESTML Conversion Tests", () => {
         "main",
         [
           "section#content.section",
-          { style: { color: "blue" } },
+          { style: ["color", "blue"] },
           "Main content",
         ],
       ],
       ["footer", "Footer content"],
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -156,7 +152,7 @@ describe("NESTML Conversion Tests", () => {
   test("Basic HTML to NESTML conversion is successful", () => {
     const htmlString = '<div><p class="text">Hello World</p></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestml(element);
+    const nestml = htmlToNestML(element);
 
     expect(nestml).toStrictEqual(["div", ["p.text", "Hello World"]]);
   });
@@ -165,7 +161,7 @@ describe("NESTML Conversion Tests", () => {
     const htmlString =
       '<div id="container"><section class="content">Content here</section><footer>Footer</footer></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestml(element);
+    const nestml = htmlToNestML(element);
 
     expect(nestml).toStrictEqual([
       "div#container",
@@ -178,7 +174,7 @@ describe("NESTML Conversion Tests", () => {
     const htmlString =
       '<div><ul class="list"><li id="item1">Item 1</li><li>Item 2</li></ul></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestml(element);
+    const nestml = htmlToNestML(element);
 
     expect(nestml).toStrictEqual([
       "div",
@@ -194,35 +190,35 @@ describe("NESTML Conversion Tests", () => {
         "p.someclass",
         "I have ",
         ["strong", "bold"],
-        ["span", { style: "color: red;" }, " and red "],
+        ["span", { style: [['color', 'red']] }, " and red "],
         "text.",
       ],
     ];
 
-    const htmlElement = nestmlToHtml(initialNestml);
-    const finalNestml = htmlToNestml(htmlElement);
+    const htmlElement = nestMLToHtml(initialNestml);
+    const finalNestml = htmlToNestML(htmlElement);
     expect(finalNestml).toStrictEqual(initialNestml);
   });
 
   test("Edge Case 1", () => {
-    const handleDrop = () => {};
-    const handleDragOver = () => {};
+    const handleDrop = () => { };
+    const handleDragOver = () => { };
 
     const nestml = [
       "div",
       {
-        style: {
-          border: "2px dashed grey",
-          padding: "20px",
-          textAlign: "center",
-        },
+        style: [
+          ["border", "2px dashed grey"],
+          ["padding", "20px"],
+          ["text-align", "center"],
+        ],
         ondragover: handleDragOver,
         ondrop: handleDrop,
       },
       "Drag and drop images here",
     ];
 
-    const htmlElement = nestmlToHtml(nestml);
+    const htmlElement = nestMLToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 

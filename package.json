@@ -3,11 +3,10 @@
   "version": "1.1.0",
   "description": "Express your front end components (CSS, HTML, JS) as pure functions.",
   "main": "src/index.js",
-  "type": "module",
   "browser": "dist/nestml.bundle.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -15,7 +14,7 @@
   },
   "keywords": [
     "html",
-    "conversion",
+    "css",
     "markup",
     "template",
     "arrays"
@@ -33,5 +32,8 @@
     "jest": "^29.7.0",
     "jsdom": "^23.0.1",
     "rollup": "^4.6.1"
+  },
+  "dependencies": {
+    "tanaw": "^0.5.0"
   }
 }
