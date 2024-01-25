@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NestML Display Input Example</title>
-    <script src="nestml.bundle.js"></script>
+    <title>Habiscript Display Input Example</title>
+    <script src="habiscript.bundle.js"></script>
   </head>
   <body>
     <script>
@@ -32,14 +32,14 @@
         };
 
         const render = () =>
-          nestml.nestmlToHtml([
+          Habiscript.habiToHtml([
             "div",
             {
-              style: {
-                border: "2px dashed grey",
-                padding: "20px",
-                textAlign: "center",
-              },
+              style: [
+                ["border", "2px dashed grey"],
+                ["padding", "20px"],
+                ["textAlign", "center"],
+              ],
               ondragover: (e) => e.preventDefault(),
               ondrop: handleDrop,
             },
@@ -49,7 +49,7 @@
         return render();
       }
 
-      document.body.appendChild(nestml.nestmlToHtml(ImageUploader()));
+      document.body.appendChild(Habiscript.habiToHtml(ImageUploader()));
     </script>
   </body>
 </html>

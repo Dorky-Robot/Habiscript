@@ -1,19 +1,19 @@
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import terser from "@rollup/plugin-terser";
+const resolve = require("@rollup/plugin-node-resolve").default;
+const commonjs = require("@rollup/plugin-commonjs");
+const terser = require("@rollup/plugin-terser");
 
-export default {
+module.exports = {
   input: "src/index.js",
   output: [
     {
-      file: "dist/nestml.bundle.js",
+      file: "dist/habiscript.bundle.js",
       format: "umd",
-      name: "nestml",
+      name: "Habiscript",
     },
     {
-      file: "dist/nestml.bundle.min.js",
+      file: "dist/habiscript.bundle.min.js",
       format: "umd",
-      name: "nestml",
+      name: "Habiscript",
       plugins: [
         terser({}),
       ],

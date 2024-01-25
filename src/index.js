@@ -22,8 +22,8 @@ const idRegex = /#[^.#]+/;
  *                           Can handle:
  *                           - Strings: will be converted to text nodes.
  *                           - Node objects: will be appended directly.
- *                           - Arrays: assumed to be a nestedml format and converted via 
- *                             `nestMLToHtml`.
+ *                           - Arrays: assumed to be a habiscript format and converted via 
+ *                             `habiToHtml`.
  *
  * @returns {Node} The newly created element.
  *
@@ -63,7 +63,7 @@ function createElement(tag, attrs = {}, children) {
     } else if (child instanceof Node) {
       element.appendChild(child);
     } else if (Array.isArray(child)) {
-      element.appendChild(nestMLToHtml(child));
+      element.appendChild(habiToHtml(child));
     }
   }
 
@@ -87,14 +87,14 @@ function cssStringToObject(cssString) {
   return styleObject;
 }
 
-function nestMLToHtml(nestML) {
-  if (typeof nestML === "string") {
-    return document.createTextNode(nestML);
-  } else if (nestML instanceof Node) {
-    return nestML;
+function habiToHtml(habi) {
+  if (typeof habi === "string") {
+    return document.createTextNode(habi);
+  } else if (habi instanceof Node) {
+    return habi;
   }
 
-  const [first, ...rest] = nestML;
+  const [first, ...rest] = habi;
   let tag, attrs = {};
 
   if (typeof first === "string") {
@@ -110,7 +110,7 @@ function nestMLToHtml(nestML) {
       attrs.id = idMatch[0].substring(1);
     }
   } else {
-    throw new Error("The first element of the nestML array must be a string.");
+    throw new Error("The first element of the habiscript array must be a string.");
   }
 
   if (rest.length > 0 && typeof rest[0] === "object" && !Array.isArray(rest[0])) {
@@ -118,29 +118,29 @@ function nestMLToHtml(nestML) {
   }
 
   const children = rest.flatMap((child) =>
-    Array.isArray(child) ? nestMLToHtml(child) : child
+    Array.isArray(child) ? habiToHtml(child) : child
   );
 
   return createElement(tag, attrs, children);
 }
 
 /**
- * Converts an HTML element or HTML string to a nestML (Nested Markup Language) format.
+ * Converts an HTML element or HTML string to a habiscript format.
  *
  * This function is designed to facilitate the conversion of HTML structures into a more
- * concise and easy-to-manage format, nestML, which represents the HTML as a nested array structure.
+ * concise and easy-to-manage format, habiscript, which represents the HTML as a nested array structure.
  * It's particularly useful for situations where you need to serialize HTML elements for 
  * storage, transmission, or processing in a format that's easier to handle than a string of HTML.
  *
  * @param {Node|string} element - The HTML element (Node) or HTML string to be converted.
  *                                If a string is provided, it's first parsed into an HTML element.
  *
- * @returns {Array} The nestML representation of the provided HTML. This format is an array where:
+ * @returns {Array} The Habiscript representation of the provided HTML. This format is an array where:
  *                  - The first element is a string representing the tag, optionally including
  *                    its id and classes (e.g., 'div#id.class1.class2').
  *                  - The second element, if present, is an object representing the element's
  *                    attributes (excluding class and id, which are handled in the tag string).
- *                  - Subsequent elements represent child nodes, each converted to nestML format.
+ *                  - Subsequent elements represent child nodes, each converted to habiscript format.
  *
  * Sample Usage:
  * ```javascript
@@ -149,24 +149,24 @@ function nestMLToHtml(nestML) {
  * div.id = 'example';
  * div.className = 'container';
  * div.innerHTML = '<span>Hello world</span>';
- * const nestML = htmlToNestML(div);
- * console.log(nestML); // Outputs: ['div#example.container', {}, ['span', {}, 'Hello world']]
+ * const habiscript = htmlToHabi(div);
+ * console.log(habiscript); // Outputs: ['div#example.container', {}, ['span', {}, 'Hello world']]
  *
  * // HTML string example
- * const nestMLFromString = htmlToNestML('<div id="example" class="container"><span>Hello world</span></div>');
- * console.log(nestMLFromString); // Same output as above
+ * const habiFromString = htmlToHabi('<div id="example" class="container"><span>Hello world</span></div>');
+ * console.log(habiFromString); // Same output as above
  * ```
  *
- * In these examples, `htmlToNestML` is used to convert an HTML element and an HTML string
- * into the nestML format. This format provides a more structured and readable way to represent
+ * In these examples, `htmlToHabi` is used to convert an HTML element and an HTML string
+ * into the Habiscript format. This format provides a more structured and readable way to represent
  * HTML content, especially when dealing with complex or deeply nested structures.
  */
-function htmlToNestML(element) {
+function htmlToHabi(element) {
   // Convert HTML string to DOM element if necessary
   if (typeof element === "string") {
     const parser = new DOMParser();
     const doc = parser.parseFromString(element, "text/html");
-    return htmlToNestML(doc.body.firstChild);
+    return htmlToHabi(doc.body.firstChild);
   }
 
   // Return text content for text nodes
@@ -183,8 +183,8 @@ function htmlToNestML(element) {
     tag += `.${element.className.split(" ").join(".")}`;
   }
 
-  // Create the nestML array
-  const nestML = [tag];
+  // Create the Habiscript array
+  const habi = [tag];
   const attributes = {};
   // Extract attributes from element
   Array.from(element.attributes).forEach((attr) => {
@@ -203,22 +203,22 @@ function htmlToNestML(element) {
   }
 
 
-  // Add attributes to nestML array if any
+  // Add attributes to Habiscript array if any
   if (Object.keys(attributes).length > 0) {
-    nestML.push(attributes);
+    habi.push(attributes);
   }
 
   // Recursively process child nodes
   Array.from(element.childNodes).forEach((child) => {
-    nestML.push(htmlToNestML(child));
+    habi.push(htmlToHabi(child));
   });
 
-  return nestML;
+  return habi;
 }
 
 
 module.exports = {
   createElement,
-  nestMLToHtml,
-  htmlToNestML,
+  habiToHtml,
+  htmlToHabi,
 };

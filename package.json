@@ -1,16 +1,16 @@
 {
-  "name": "nestml",
+  "name": "habiscript",
   "version": "1.1.0",
-  "description": "Express your front end components (CSS, HTML, JS) as pure functions.",
+  "description": "Elevate Your Web Experience: Unify HTML, CSS, and JS with HabiScript",
   "main": "src/index.js",
-  "browser": "dist/nestml.bundle.js",
+  "browser": "dist/habiscript.bundle.js",
   "scripts": {
     "build": "rollup -c",
     "test": "jest"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:felixflores/nestml.git"
+    "url": "git@github.com:felixflores/HabiScript.git"
   },
   "keywords": [
     "html",
@@ -22,9 +22,9 @@
   "author": "Felix Flores",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/felixflores/nestml/issues"
+    "url": "https://github.com/felixflores/HabiScript/issues"
   },
-  "homepage": "https://github.com/felixflores/nestml#readme",
+  "homepage": "https://github.com/felixflores/HabiScript#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",

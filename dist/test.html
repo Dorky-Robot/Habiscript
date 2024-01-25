@@ -2,24 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>NestML Example</title>
-    <script src="nestml.bundle.js"></script>
+    <title>Habiscript Example</title>
+    <script src="habiscript.bundle.js"></script>
   </head>
 
   <body>
     <script>
-      // Convert an HTML string to the NestML array format
+      // Convert an HTML string to the Habiscript array format
       const htmlString = "<div><p>Hello World</p></div>";
-      const nestmlArray = nestml.htmlToNestml(htmlString);
-      console.log(nestmlArray);
+      const habiscriptArray = Habiscript.htmlToHabi(htmlString);
+      console.log(habiscriptArray);
 
-      // Convert a NestML array back to an HTML element
-      const htmlElement = nestml.nestmlToHtml(nestmlArray);
+      // Convert a Habiscript array back to an HTML element
+      const htmlElement = Habiscript.habiToHtml(habiscriptArray);
       document.body.appendChild(htmlElement);
-
-      const myChannel = new nestml.Channel();
-      myChannel.sub((message) => console.log(message));
-      myChannel.pub("Test message");
 
       function Button({ id, className, style, onClick, text }) {
         return [`button#${id}.${className}`, { style, onclick: onClick }, text];
@@ -42,14 +38,14 @@
           Button({
             id: "myButton",
             className: "btn btn-primary",
-            style: { margin: "10px" },
+            style: ["margin", "10px"],
             onClick: handleButtonClick,
             text: "Click Me",
           }),
           TextBox({
             id: "myTextBox",
             className: "form-control",
-            style: { margin: "10px" },
+            style: ["margin", "10px"],
             onChange: handleTextChange,
             placeholder: "Enter text here",
           }),
@@ -58,7 +54,7 @@
 
       // Render MyApp to the DOM
       document.addEventListener("DOMContentLoaded", () => {
-        const app = nestml.nestmlToHtml(MyApp());
+        const app = Habiscript.habiToHtml(MyApp());
         document.body.appendChild(app);
       });
     </script>

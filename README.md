@@ -1,12 +1,14 @@
-![NestML Logo](nestml.jpg)
+![HabiScript Logo](HabiScript.jpg)
 
-# NestML Library
+# HabiScript
 
-NestML is a JavaScript library for converting HTML to a custom NestML syntax and vice versa. It provides a simple and intuitive way to transform HTML structures into a NestML array format and back, making it easier to manipulate and work with HTML in JavaScript applications.
+habi: Tagalog word for woven.
 
-## Why use NestML?
+For some time now, many of the existing model frameworks have been built on the fundamental assumption that HTML, CSS, and JS are related yet separate technologies. However, over time, the responsibilities of these technologies have begun to blur into each other. CSS has been extended to the point where it crosses beyond just styles and into the domain previously reserved for JS. At the same time, HTML and JS have continued in ways that make them intrinsically coupled, such as the case for canvas, `webGL,` and other more advanced uses of HTML.
 
-NestML allows you to create truly self-contained web components. Instead of shipping separate CSS, HTML, and Javascript, you can create a single function containing everything. All of this can happen on the browsers.
+We should reconsider those boundaries and perhaps remove them altogether. HabiScript hopes to unify CSS and HTML with JS and remove the accidental complexities resulting from maintaining those traditional separations.
+
+With HabiScript, allows it's possible to
 
 ```javascript
 function Button({ id, className, style, text }) {
@@ -22,8 +24,8 @@ nestml.nestmlToHtml([
   "div",
   Button({
     id: "myButton",
-    className: "btn btn-primary",
-    style: { margin: "10px" },
+    className: "btn btn-primary",f
+    style: [ "margin", `${2*10}px` ],
     text: "Click Me",
   }),
 ]);

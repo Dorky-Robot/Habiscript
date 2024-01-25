@@ -1,7 +1,7 @@
 const { JSDOM } = require("jsdom");
-const { nestMLToHtml, htmlToNestML } = require("./index.js");
+const { habiToHtml, htmlToHabi } = require("./index.js");
 
-describe("NESTML Conversion Tests", () => {
+describe("Habiscript Conversion Tests", () => {
   let document;
 
   beforeAll(() => {
@@ -12,8 +12,8 @@ describe("NESTML Conversion Tests", () => {
     document = jsdom.window.document;
   });
 
-  test("nestMLToHtml() converts nestml to HTML correctly", () => {
-    const nestml = [
+  test("habiToHtml() converts Habiscript to HTML correctly", () => {
+    const habiscript = [
       "div",
       ["p", "I am a component!"],
       [
@@ -25,7 +25,7 @@ describe("NESTML Conversion Tests", () => {
       ],
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -36,7 +36,7 @@ describe("NESTML Conversion Tests", () => {
 
   test("Empty Element renders correctly", () => {
     const nestml = ["div"];
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(nestml);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -44,8 +44,8 @@ describe("NESTML Conversion Tests", () => {
   });
 
   test("Nested Elements render correctly", () => {
-    const nestml = ["div", ["span", ["strong", "Nested content"]]];
-    const htmlElement = nestMLToHtml(nestml);
+    const habi = ["div", ["span", ["strong", "Nested content"]]];
+    const htmlElement = habiToHtml(habi);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -55,8 +55,8 @@ describe("NESTML Conversion Tests", () => {
   });
 
   test("Element with Attributes renders correctly", () => {
-    const nestml = ["div", { id: "testId", class: "testClass" }, "Content"];
-    const htmlElement = nestMLToHtml(nestml);
+    const habi = ["div", { id: "testId", class: "testClass" }, "Content"];
+    const htmlElement = habiToHtml(habi);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -67,12 +67,12 @@ describe("NESTML Conversion Tests", () => {
 
   test("Invalid Input throws an error", () => {
     expect(() => {
-      nestMLToHtml(null);
+      habiToHtml(null);
     }).toThrow();
   });
 
   test("Complex Inline CSS renders correctly", () => {
-    const nestml = [
+    const habiscript = [
       "div",
       {
         style: [
@@ -84,7 +84,7 @@ describe("NESTML Conversion Tests", () => {
       "Styled content",
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -94,13 +94,13 @@ describe("NESTML Conversion Tests", () => {
   });
 
   test("CSS Animations render correctly", () => {
-    const nestml = [
+    const habiscript = [
       "div",
       { style: ["animation", { func: ["example", "5s", "infinite"] }] },
       "Animated content",
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -109,13 +109,13 @@ describe("NESTML Conversion Tests", () => {
   });
 
   test("Various Element Types are handled correctly", () => {
-    const nestml = [
+    const habiscript = [
       "header",
       ["main", ["article", "Article content"]],
       ["footer", "Footer content"],
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -125,7 +125,7 @@ describe("NESTML Conversion Tests", () => {
   });
 
   test("Complex Nesting and Attributes render correctly", () => {
-    const nestml = [
+    const habiscript = [
       "div.wrapper",
       { id: "main-container" },
       ["header#top-header.navbar", "Header content"],
@@ -140,7 +140,7 @@ describe("NESTML Conversion Tests", () => {
       ["footer", "Footer content"],
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 
@@ -149,21 +149,21 @@ describe("NESTML Conversion Tests", () => {
     );
   });
 
-  test("Basic HTML to NESTML conversion is successful", () => {
+  test("Basic HTML to Habiscript conversion is successful", () => {
     const htmlString = '<div><p class="text">Hello World</p></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestML(element);
+    const habiscript = htmlToHabi(element);
 
-    expect(nestml).toStrictEqual(["div", ["p.text", "Hello World"]]);
+    expect(habiscript).toStrictEqual(["div", ["p.text", "Hello World"]]);
   });
 
   test("Complex HTML structure conversion is successful", () => {
     const htmlString =
       '<div id="container"><section class="content">Content here</section><footer>Footer</footer></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestML(element);
+    const habiscript = htmlToHabi(element);
 
-    expect(nestml).toStrictEqual([
+    expect(habiscript).toStrictEqual([
       "div#container",
       ["section.content", "Content here"],
       ["footer", "Footer"],
@@ -174,16 +174,16 @@ describe("NESTML Conversion Tests", () => {
     const htmlString =
       '<div><ul class="list"><li id="item1">Item 1</li><li>Item 2</li></ul></div>';
     const element = new JSDOM(htmlString).window.document.body.firstChild;
-    const nestml = htmlToNestML(element);
+    const habiscript = htmlToHabi(element);
 
-    expect(nestml).toStrictEqual([
+    expect(habiscript).toStrictEqual([
       "div",
       ["ul.list", ["li#item1", "Item 1"], ["li", "Item 2"]],
     ]);
   });
 
   test("NESTML to HTML and back conversion is consistent", () => {
-    const initialNestml = [
+    const initialHabi = [
       "div",
       ["p", "I am a component!"],
       [
@@ -195,16 +195,16 @@ describe("NESTML Conversion Tests", () => {
       ],
     ];
 
-    const htmlElement = nestMLToHtml(initialNestml);
-    const finalNestml = htmlToNestML(htmlElement);
-    expect(finalNestml).toStrictEqual(initialNestml);
+    const htmlElement = habiToHtml(initialHabi);
+    const finalHabi = htmlToHabi(htmlElement);
+    expect(finalHabi).toStrictEqual(initialHabi);
   });
 
   test("Edge Case 1", () => {
     const handleDrop = () => { };
     const handleDragOver = () => { };
 
-    const nestml = [
+    const habiscript = [
       "div",
       {
         style: [
@@ -218,7 +218,7 @@ describe("NESTML Conversion Tests", () => {
       "Drag and drop images here",
     ];
 
-    const htmlElement = nestMLToHtml(nestml);
+    const htmlElement = habiToHtml(habiscript);
     const divElement = document.createElement("div");
     divElement.appendChild(htmlElement);
 

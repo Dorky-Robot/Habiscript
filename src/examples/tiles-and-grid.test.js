@@ -1,5 +1,5 @@
 const { JSDOM } = require("jsdom");
-const { nestMLToHtml } = require("../../src/index.js");
+const { habiToHtml } = require("../../src/index.js");
 
 // Define your components outside the test
 function Tile({ id, text }) {
@@ -62,7 +62,7 @@ describe("FlexGrid component", () => {
     });
 
     // Convert to HTML using the provided function
-    const htmlElement = nestMLToHtml(grid);
+    const htmlElement = habiToHtml(grid);
 
     // Append to a div for testing
     const divElement = document.createElement("div");
