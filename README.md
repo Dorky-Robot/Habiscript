@@ -1,14 +1,14 @@
-![HabiScript Logo](HabiScript.jpg)
+![Habiscript Logo](Habiscript.jpg)
 
-# HabiScript
+# Habiscript
 
 habi: Tagalog word for woven.
 
 For some time now, many of the existing model frameworks have been built on the fundamental assumption that HTML, CSS, and JS are related yet separate technologies. However, over time, the responsibilities of these technologies have begun to blur into each other. CSS has been extended to the point where it crosses beyond just styles and into the domain previously reserved for JS. At the same time, HTML and JS have continued in ways that make them intrinsically coupled, such as the case for canvas, `webGL,` and other more advanced uses of HTML.
 
-We should reconsider those boundaries and perhaps remove them altogether. HabiScript hopes to unify CSS and HTML with JS and remove the accidental complexities resulting from maintaining those traditional separations.
+We should reconsider those boundaries and perhaps remove them altogether. Habiscript hopes to unify CSS and HTML with JS and remove the accidental complexities resulting from maintaining those traditional separations.
 
-With HabiScript, allows it's possible to
+With Habiscript, allows it's possible to
 
 ```javascript
 function Button({ id, className, style, text }) {
@@ -20,7 +20,7 @@ function Button({ id, className, style, text }) {
   ];
 }
 
-nestml.nestmlToHtml([
+Habiscript.habiToHtml([
   "div",
   Button({
     id: "myButton",
@@ -33,92 +33,92 @@ nestml.nestmlToHtml([
 
 ## Installation
 
-To install NestML, you can use npm or yarn as follows:
+To install Habiscript, you can use npm or yarn as follows:
 
 ```bash
-npm install nestml
+npm install habiscript
 ```
 
 Or, if you're using yarn:
 
 ```bash
-yarn add nestml
+yarn add habiscript
 ```
 
 ## Usage
 
 ### Basic Conversion
 
-Convert an HTML string to the NestML array format:
+Convert an HTML string to the Habiscript array format:
 
 ```javascript
-import { htmlToNestml } from "nestml";
+import { htmlToHabi } from "habiscript";
 
 const htmlString = "<div><p>Hello World</p></div>";
-const nestmlArray = htmlToNestml(htmlString);
-console.log(nestmlArray);
+const habiArray = htmlToHabi(htmlString);
+console.log(habiArray);
 ```
 
-Convert a NestML array back to an HTML element:
+Convert a Habiscript array back to an HTML element:
 
 ```javascript
-import { nestmlToHtml } from "nestml";
+import { habiToHtml } from "habiscript";
 
-const nestmlArray = ["div", ["p", "Hello World"]];
-const htmlElement = nestmlToHtml(nestmlArray);
+const habiArray = ["div", ["p", "Hello World"]];
+const htmlElement = habiToHtml(habiArray);
 document.body.appendChild(htmlElement);
 ```
 
 ### Handling CSS with Animations
 
-Demonstrating how to add CSS animations using NestML:
+Demonstrating how to add CSS animations using Habiscript:
 
 ```javascript
-import { nestmlToHtml } from "nestml";
+import { habiToHtml } from "habiscript";
 
-const nestmlWithAnimation = [
+const habiWithAnimation = [
   "div",
   { style: { animation: "example 5s infinite" } },
   "Animated content",
 ];
 
-const animatedElement = nestmlToHtml(nestmlWithAnimation);
+const animatedElement = habiToHtml(habiWithAnimation);
 document.body.appendChild(animatedElement);
 ```
 
 ### In the Browser
 
-You don't need to install anything if you want to use NestML directly in the browser. Simply include the following `<script>` tag in your HTML:
+You don't need to install anything if you want to use Habiscript directly in the browser. Simply include the following `<script>` tag in your HTML:
 
 ```html
-<script src="https://unpkg.com/nestml/dist/nestml.bundle.js"></script>
+<script src="https://unpkg.com/habiscript/dist/habiscript.bundle.js"></script>
 ```
 
 or
 
 ```html
-<script src="https://unpkg.com/nestml/dist/nestml.bundle.min.js"></script>
+<script src="https://unpkg.com/habiscript/dist/habiscript.bundle.min.js"></script>
 ```
 
-This will load the NestML library and make it available as a global variable `nestml`. Here's how to use it:
+This will load the Habiscript library and make it available as a global variable `habiscript`. Here's how to use it:
 
 ```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>NestML Example</title>
-    <script src="https://unpkg.com/nestml/dist/nestml.bundle.min.js"></script>
+    <title>Habiscript Example</title>
+    <script src="https://unpkg.com/habiscript/dist/habiscript.bundle.min.js"></script>
   </head>
   <body>
     <script>
-      // Convert an HTML string to the NestML array format
+      // Convert an HTML string to the Habiscript array format
       const htmlString = "<div><p>Hello World</p></div>";
-      const nestmlArray = nestml.htmlToNestml(htmlString);
-      console.log(nestmlArray);
+      const habiArray = Habiscript.htmlToHabi(htmlString);
+      console.log(habiArray);
 
-      // Convert a NestML array back to an HTML element
-      const htmlElement = nestml.nestmlToHtml(nestmlArray);
+      // Convert a Habiscript array back to an HTML element
+      const htmlElement = Habiscript.habilToHtml(habiArray);
       document.body.appendChild(htmlElement);
     </script>
   </body>
@@ -130,9 +130,9 @@ This will load the NestML library and make it available as a global variable `ne
 Handling more complex CSS properties:
 
 ```javascript
-import { nestmlToHtml } from "nestml";
+import { habiToHtml } from "habiscript";
 
-const nestmlWithComplexStyle = [
+const habiWithComplexStyle = [
   "div",
   {
     style: {
@@ -143,7 +143,7 @@ const nestmlWithComplexStyle = [
   "Stylish content",
 ];
 
-const stylishElement = nestmlToHtml(nestmlWithComplexStyle);
+const stylishElement = habiToHtml(habiWithComplexStyle);
 document.body.appendChild(stylishElement);
 ```
 
@@ -186,7 +186,7 @@ function MyApp() {
 
 // Render MyApp to the DOM
 document.addEventListener("DOMContentLoaded", () => {
-  const app = nestml.nestmlToHtml(MyApp());
+  const app = Habiscript.habiToHtml(MyApp());
   document.body.appendChild(app);
 });
 ```
@@ -216,4 +216,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 Felix Flores - felixflores@gmail.com
 
-Project Link: [https://github.com/felixflores/nestml](https://github.com/felixflores/nestml)
+Project Link: [https://github.com/felixflores/habiscript](https://github.com/felixflores/habiscript)

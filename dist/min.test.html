@@ -2,24 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>NestML Example</title>
-    <script src="nestml.bundle.min.js"></script>
+    <title>Habiscript Example</title>
+    <script src="habiscript.bundle.min.js"></script>
   </head>
 
   <body>
     <script>
-      // Convert an HTML string to the NestML array format
+      // Convert an HTML string to the Habiscript array format
       const htmlString = "<div><p>Hello World</p></div>";
-      const nestmlArray = nestml.htmlToNestml(htmlString);
-      console.log(nestmlArray);
+      const habiArray = Habiscript.htmlToHabi(htmlString);
+      console.log(habiArray);
 
-      // Convert a NestML array back to an HTML element
-      const htmlElement = nestml.nestmlToHtml(nestmlArray);
+      // Convert a Habiscript array back to an HTML element
+      const htmlElement = Habiscript.habiToHtml(habiArray);
       document.body.appendChild(htmlElement);
-
-      const myChannel = new nestml.Channel();
-      myChannel.sub((message) => console.log(message));
-      myChannel.pub("Test message");
     </script>
   </body>
 </html>
