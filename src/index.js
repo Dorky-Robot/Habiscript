@@ -47,7 +47,14 @@ function createElement(tag, attrs = {}, children) {
 
   for (const [attr, value] of Object.entries(attrs)) {
     if (attr === "style" && typeof value === "object") {
-      Object.assign(element.style, cssStringToObject(style(value)));
+      if (Array.isArray(value)) {
+        Object.assign(
+          element.style,
+          cssStringToObject(style(value))
+        );
+      } else {
+        Object.assign(element.style, value)
+      }
     } else if (typeof value === "function" && attr.startsWith("on")) {
       const event = attr.substring(2).toLowerCase();
       element.addEventListener(event, value);

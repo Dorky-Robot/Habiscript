@@ -133,7 +133,7 @@ describe("Habiscript Conversion Tests", () => {
         "main",
         [
           "section#content.section",
-          { style: ["color", "blue"] },
+          { style: { "color": "blue" } },
           "Main content",
         ],
       ],
