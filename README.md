@@ -1,4 +1,4 @@
-![Habiscript Logo](Habiscript.jpg)
+![Habiscript Logo](habiscript.jpg)
 
 # Habiscript
 
