@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Habiscript Example</title>
     <script src="habiscript.bundle.js"></script>
+    <style></style>
   </head>
 
   <body>
@@ -56,6 +57,13 @@
       document.addEventListener("DOMContentLoaded", () => {
         const app = Habiscript.habiToHtml(MyApp());
         document.body.appendChild(app);
+
+        document.querySelector("style").textContent = Habiscript.style({
+          body: [
+            ["font-family", "Arial, sans-serif"],
+            ["background-color", "#f4f4f4"],
+          ],
+        });
       });
     </script>
   </body>

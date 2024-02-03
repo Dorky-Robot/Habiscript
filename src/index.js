@@ -228,4 +228,5 @@ module.exports = {
   createElement,
   habiToHtml,
   htmlToHabi,
+  style
 };
