@@ -25,7 +25,7 @@ Habiscript.habiToHtml([
   Button({
     id: "myButton",
     className: "btn btn-primary",f
-    style: [ "margin", `${2*10}px` ],
+    style: { margin: `${2*10}px` },
     text: "Click Me",
   }),
 ]);
@@ -170,14 +170,14 @@ function MyApp() {
     Button({
       id: "myButton",
       className: "btn btn-primary",
-      style: [["margin", "10px"]],
+      style: { margin: "10px" },
       onClick: handleButtonClick,
       text: "Click Me",
     }),
     TextBox({
       id: "myTextBox",
       className: "form-control",
-      style: [["margin", "10px"]],
+      style: { margin: "10px" },
       onChange: handleTextChange,
       placeholder: "Enter text here",
     }),

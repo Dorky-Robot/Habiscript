@@ -1,6 +1,6 @@
 {
   "name": "habiscript",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Elevate Your Web Experience: Unify HTML, CSS, and JS with Habiscript",
   "main": "src/index.js",
   "browser": "dist/habiscript.bundle.js",
@@ -35,6 +35,6 @@
     "rollup": "^4.6.1"
   },
   "dependencies": {
-    "tanaw": "^0.5.0"
+    "tanaw": "^0.6.0"
   }
 }

@@ -3,13 +3,13 @@ const { habiToHtml } = require("../../src/index.js");
 
 // Define your components outside the test
 function Tile({ id, text }) {
-  const tileStyle = [
-    ["border", "1px solid #ccc"],
-    ["background", "#f7f7f7"],
-    ["margin", "0.5%"],
-    ["flex-basis", "calc(100% / 24 - 1%)"],
-    ["height", "150px"],
-  ];
+  const tileStyle = {
+    border: "1px solid #ccc",
+    background: "#f7f7f7",
+    margin: "0.5%",
+    flexBasis: "calc(100% / 24 - 1%)",
+    height: "150px",
+  };
 
   const handleDrag = () => {
     /*...*/
@@ -26,13 +26,13 @@ function Tile({ id, text }) {
 }
 
 function FlexGrid({ children }) {
-  const gridStyle = [
-    ["display", "flex"],
-    ["flexWrap", "wrap"],
-    ["justify-content", "space-around"],
-    ["margin", "0 auto"],
-    ["max-width", "100%"],
-  ];
+  const gridStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+    margin: "0 auto",
+    maxWidth: "100%",
+  };
 
   return [
     "div.flex-grid-container",

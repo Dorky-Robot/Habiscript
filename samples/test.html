@@ -12,7 +12,6 @@
       // Convert an HTML string to the Habiscript array format
       const htmlString = "<div><p>Check out the Console</p></div>";
       const habiscriptArray = Habiscript.htmlToHabi(htmlString);
-      console.log(habiscriptArray);
 
       // Convert a Habiscript array back to an HTML element
       const htmlElement = Habiscript.habiToHtml(habiscriptArray);
@@ -39,14 +38,14 @@
           Button({
             id: "myButton",
             className: "btn btn-primary",
-            style: ["margin", "10px"],
+            style: { margin: "10px" },
             onClick: handleButtonClick,
             text: "Click Me",
           }),
           TextBox({
             id: "myTextBox",
             className: "form-control",
-            style: ["margin", "10px"],
+            style: { margin: "10px" },
             onChange: handleTextChange,
             placeholder: "Enter text here",
           }),
@@ -59,10 +58,10 @@
         document.body.appendChild(app);
 
         document.querySelector("style").textContent = Habiscript.style({
-          body: [
-            ["font-family", "Arial, sans-serif"],
-            ["background-color", "#f4f4f4"],
-          ],
+          body: {
+            fontFamily: "Arial, sans-serif",
+            backgroundColor: "#f4f4f4",
+          },
         });
       });
     </script>

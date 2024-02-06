@@ -35,11 +35,11 @@
           Habiscript.habiToHtml([
             "div",
             {
-              style: [
-                ["border", "2px dashed grey"],
-                ["padding", "20px"],
-                ["textAlign", "center"],
-              ],
+              style: {
+                border: "2px dashed grey",
+                padding: "20px",
+                textAlign: "center",
+              },
               ondragover: (e) => e.preventDefault(),
               ondrop: handleDrop,
             },
