@@ -47,14 +47,7 @@ function createElement(tag, attrs = {}, children) {
 
   for (const [attr, value] of Object.entries(attrs)) {
     if (attr === "style" && typeof value === "object") {
-      if (Array.isArray(value)) {
-        Object.assign(
-          element.style,
-          cssStringToObject(style(value))
-        );
-      } else {
-        Object.assign(element.style, value)
-      }
+      Object.assign(element.style, value)
     } else if (typeof value === "function" && attr.startsWith("on")) {
       const event = attr.substring(2).toLowerCase();
       element.addEventListener(event, value);
@@ -169,19 +162,16 @@ function habiToHtml(habi) {
  * HTML content, especially when dealing with complex or deeply nested structures.
  */
 function htmlToHabi(element) {
-  // Convert HTML string to DOM element if necessary
   if (typeof element === "string") {
     const parser = new DOMParser();
     const doc = parser.parseFromString(element, "text/html");
     return htmlToHabi(doc.body.firstChild);
   }
 
-  // Return text content for text nodes
   if (element.nodeType === Node.TEXT_NODE) {
     return element.textContent;
   }
 
-  // Construct the tag string
   let tag = element.tagName.toLowerCase();
   if (element.id) {
     tag += `#${element.id}`;
@@ -190,35 +180,25 @@ function htmlToHabi(element) {
     tag += `.${element.className.split(" ").join(".")}`;
   }
 
-  // Create the Habiscript array
   const habi = [tag];
   const attributes = {};
-  // Extract attributes from element
-  Array.from(element.attributes).forEach((attr) => {
+  for (const attr of element.attributes) {
     if (attr.name !== "class" && attr.name !== "id") {
       if (attr.name === "style") {
-        attributes[attr.name] = attributes[attr.name] || [];
-        attributes[attr.name].push(cssPropertyToArray(attr.value));
+        attributes.style = cssStringToObject(attr.value);
       } else {
         attributes[attr.name] = attr.value;
       }
     }
-  });
-
-  function cssPropertyToArray(cssProperty) {
-    return cssProperty.split(':').map(item => item.replace(/;|\s/g, '').trim());
   }
 
-
-  // Add attributes to Habiscript array if any
   if (Object.keys(attributes).length > 0) {
     habi.push(attributes);
   }
 
-  // Recursively process child nodes
-  Array.from(element.childNodes).forEach((child) => {
+  for (const child of element.childNodes) {
     habi.push(htmlToHabi(child));
-  });
+  }
 
   return habi;
 }

@@ -20,7 +20,7 @@ describe("Habiscript Conversion Tests", () => {
         "p.someclass",
         "I have ",
         ["strong", "bold"],
-        ["span", { style: ["color", "red"] }, " and red "],
+        ["span", { style: { color: "red" } }, " and red "],
         "text.",
       ],
     ];
@@ -75,11 +75,11 @@ describe("Habiscript Conversion Tests", () => {
     const habiscript = [
       "div",
       {
-        style: [
-          ['backgroundColor', 'blue'],
-          ['color', 'white'],
-          ['border', '1px', 'solid', 'black'],
-        ],
+        style: {
+          backgroundColor: 'blue',
+          color: 'white',
+          border: '1px solid black',
+        },
       },
       "Styled content",
     ];
@@ -96,7 +96,7 @@ describe("Habiscript Conversion Tests", () => {
   test("CSS Animations render correctly", () => {
     const habiscript = [
       "div",
-      { style: ["animation", { func: ["example", "5s", "infinite"] }] },
+      { style: { "animation": "example(5s,infinite)" } },
       "Animated content",
     ];
 
@@ -190,7 +190,7 @@ describe("Habiscript Conversion Tests", () => {
         "p.someclass",
         "I have ",
         ["strong", "bold"],
-        ["span", { style: [['color', 'red']] }, " and red "],
+        ["span", { style: { color: 'red' } }, " and red "],
         "text.",
       ],
     ];
@@ -207,11 +207,11 @@ describe("Habiscript Conversion Tests", () => {
     const habiscript = [
       "div",
       {
-        style: [
-          ["border", "2px dashed grey"],
-          ["padding", "20px"],
-          ["text-align", "center"],
-        ],
+        style: {
+          border: "2px dashed grey",
+          padding: "20px",
+          textAlign: "center",
+        },
         ondragover: handleDragOver,
         ondrop: handleDrop,
       },
