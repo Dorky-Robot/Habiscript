@@ -4,12 +4,12 @@ const classRegex = /\.[^.#]+/g;
 const idRegex = /#[^.#]+/;
 
 /**
- * Creates an HTML element with specified attributes and children.
- * 
- * This function simplifies the process of creating DOM elements in JavaScript, allowing for 
- * a more declarative approach. It's particularly useful for situations where you need to 
- * dynamically generate complex HTML structures without the verbosity of traditional DOM 
- * manipulation methods.
+ * PRIVATE FUNCTION: Creates an HTML element with specified attributes and children.
+ *
+ * This function is intended for internal use within the module/library it is defined in.
+ * It simplifies the process of creating DOM elements in JavaScript, allowing for 
+ * a more declarative approach to building complex HTML structures without the verbosity
+ * of traditional DOM manipulation methods.
  *
  * @param {string} tag - The type of element to create (e.g., 'div', 'span').
  * @param {Object} attrs - An object representing attributes to set on the element. 
@@ -22,27 +22,31 @@ const idRegex = /#[^.#]+/;
  *                           Can handle:
  *                           - Strings: will be converted to text nodes.
  *                           - Node objects: will be appended directly.
- *                           - Arrays: assumed to be a habiscript format and converted via 
- *                             `habiToHtml`.
+ *                           - Arrays: assumed to be in a specific format and converted accordingly.
  *
  * @returns {Node} The newly created element.
  *
- * Sample Usage:
- * ```javascript
- * const button = createElement('button', {
- *   style: { backgroundColor: 'blue', color: 'white' },
- *   onClick: () => alert('Clicked!'),
- *   'aria-label': 'Click me'
- * }, ['Click me']);
+ * NOTE: This function is not exposed publicly and should only be used within the context
+ * of its defining module/library.
  *
- * document.body.appendChild(button);
+ * Sample Usage (internal):
+ * ```javascript
+ * const card = makeElement('div', { class: 'card', style: { width: '300px', boxShadow: '0 2px 4px rgba(0,0,0,.1)' } }, [
+ *   makeElement('img', { src: 'image.jpg', alt: 'Sample Image', style: { width: '100%', display: 'block' } }),
+ *   makeElement('div', { class: 'card-body' }, [
+ *     makeElement('h5', { class: 'card-title' }, ['Card Title']),
+ *     makeElement('p', { class: 'card-text' }, ['Some quick example text to build on the card title and make up the bulk of the card\'s content.']),
+ *     makeElement('a', { href: '#', class: 'btn btn-primary' }, ['Go somewhere'])
+ *   ])
+ * ]);
+ *
+ * document.body.appendChild(card);
  * ```
  *
- * In this example, `createElement` is used to create a button with inline styles, 
- * an event listener for the 'click' event, and an accessible label. The button's 
- * text is set by passing a string in the children array.
+ * This example is for illustrative purposes only to demonstrate how `makeElement`
+ * might be used internally.
  */
-function createElement(tag, attrs = {}, children) {
+function makeElement(tag, attrs = {}, children) {
   const element = document.createElement(tag);
 
   for (const [attr, value] of Object.entries(attrs)) {
@@ -70,6 +74,11 @@ function createElement(tag, attrs = {}, children) {
   return element;
 }
 
+/**
+ * Converts a CSS string to an object containing key-value pairs of CSS styles.
+ * @param {string} cssString - The CSS string to be converted.
+ * @returns {Object} - An object containing key-value pairs of CSS styles.
+ */
 function cssStringToObject(cssString) {
   let styleObject = {};
 
@@ -121,7 +130,7 @@ function habiToHtml(habi) {
     Array.isArray(child) ? habiToHtml(child) : child
   );
 
-  return createElement(tag, attrs, children);
+  return makeElement(tag, attrs, children);
 }
 
 /**
@@ -145,7 +154,7 @@ function habiToHtml(habi) {
  * Sample Usage:
  * ```javascript
  * // HTML element example
- * const div = document.createElement('div');
+ * const div = document.makeElement('div');
  * div.id = 'example';
  * div.className = 'container';
  * div.innerHTML = '<span>Hello world</span>';
@@ -205,7 +214,6 @@ function htmlToHabi(element) {
 
 
 module.exports = {
-  createElement,
   habiToHtml,
   htmlToHabi,
   style
