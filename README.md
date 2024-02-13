@@ -47,9 +47,19 @@ yarn add habiscript
 
 ## Usage
 
-### Basic Conversion
+### Basic Usage
 
-Convert an HTML string to the Habiscript array format:
+Use Habiscript notation to turn Javascript structures to html elements.
+
+```javascript
+import { habiToHtml } from "habiscript";
+
+const hello = ["div", ["p", "Hello World"]];
+const htmlElement = habiToHtml(hello);
+document.body.appendChild(htmlElement);
+```
+
+You can also turn html to Habiscript
 
 ```javascript
 import { htmlToHabi } from "habiscript";
@@ -57,16 +67,6 @@ import { htmlToHabi } from "habiscript";
 const htmlString = "<div><p>Hello World</p></div>";
 const habiArray = htmlToHabi(htmlString);
 console.log(habiArray);
-```
-
-Convert a Habiscript array back to an HTML element:
-
-```javascript
-import { habiToHtml } from "habiscript";
-
-const habiArray = ["div", ["p", "Hello World"]];
-const htmlElement = habiToHtml(habiArray);
-document.body.appendChild(htmlElement);
 ```
 
 ### Handling CSS with Animations
