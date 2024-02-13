@@ -250,6 +250,14 @@
 	}
 
 	/**
+	 * Alias for `habiToHtml`.
+	 * @alias habiToHtml
+	 */
+	function toElement(habi) {
+	  return habiToHtml(habi);
+	}
+
+	/**
 	 * Converts an HTML element or HTML string to a habiscript format.
 	 *
 	 * This function is designed to facilitate the conversion of HTML structures into a more
@@ -332,6 +340,7 @@
 	var src = {
 	  habiToHtml,
 	  htmlToHabi,
+	  toElement,
 	  style
 	};
 
