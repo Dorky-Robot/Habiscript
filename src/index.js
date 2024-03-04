@@ -1,4 +1,4 @@
-const { style } = require("tanaw");
+const { style: tanawStyle } = require("tanaw");
 
 const classRegex = /\.[^.#]+/g;
 const idRegex = /#[^.#]+/;
@@ -220,6 +220,12 @@ function htmlToHabi(element) {
   return habi;
 }
 
+function style(tanawJS) {
+  return this.toElement([
+    'style',
+    tanawStyle(tanawJS)
+  ]);
+}
 
 module.exports = {
   habiToHtml,

@@ -114,7 +114,7 @@
 
 	var tanaw_bundleExports = tanaw_bundle.exports;
 
-	const { style } = tanaw_bundleExports;
+	const { style: tanawStyle } = tanaw_bundleExports;
 
 	const classRegex = /\.[^.#]+/g;
 	const idRegex = /#[^.#]+/;
@@ -336,6 +336,12 @@
 	  return habi;
 	}
 
+	function style(tanawJS) {
+	  return this.toElement([
+	    'style',
+	    tanawStyle(tanawJS)
+	  ]);
+	}
 
 	var src = {
 	  habiToHtml,

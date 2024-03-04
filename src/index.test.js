@@ -200,6 +200,30 @@ describe("Habiscript Conversion Tests", () => {
     expect(finalHabi).toStrictEqual(initialHabi);
   });
 
+
+  test("Generates form with input and button", () => {
+    const habiscript = [
+      'form',
+      ['input', { type: 'text' }],
+      ['textarea'],
+      [
+        'fieldset',
+        ['input', { type: 'radio', name: "test-1", value: 'test 1' }],
+        ['label', { for: "test-1" }, "Test 1"],
+        ['input', { type: 'radio', name: "test-2", value: 'test 2 ' }],
+        ['label', { for: "test-2" }, "Test 2"],
+      ]
+    ]
+
+    const htmlElement = habiToHtml(habiscript);
+    const divElement = document.createElement("div");
+    divElement.appendChild(htmlElement);
+
+    expect(divElement.innerHTML.trim()).toBe(
+      '<form><input type="text"><textarea></textarea><fieldset><input type="radio" name="test-1" value="test 1"><label for="test-1">Test 1</label><input type="radio" name="test-2" value="test 2 "><label for="test-2">Test 2</label></fieldset></form>'
+    );
+  });
+
   test("Edge Case 1", () => {
     const handleDrop = () => { };
     const handleDragOver = () => { };
