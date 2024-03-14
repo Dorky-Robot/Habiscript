@@ -18,6 +18,20 @@ module.exports = {
         terser({}),
       ],
     },
+    {
+      file: "dist/habiscript.esm.js",
+      format: "es",
+      name: "Habiscript",
+    },
+    // Minified ES module format
+    {
+      file: "dist/habiscript.esm.min.js",
+      format: "es",
+      name: "Habiscript",
+      plugins: [
+        terser(),
+      ],
+    }
   ],
   plugins: [resolve(), commonjs()],
 };

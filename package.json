@@ -1,6 +1,6 @@
 {
   "name": "habiscript",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Elevate Your Web Experience: Unify HTML, CSS, and JS with Habiscript",
   "main": "src/index.js",
   "browser": "dist/habiscript.bundle.js",
