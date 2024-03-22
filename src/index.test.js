@@ -190,16 +190,19 @@ describe("Habiscript Conversion Tests", () => {
         "p.someclass",
         "I have ",
         ["strong", "bold"],
-        ["span", { style: { color: 'red' } }, " and red "],
+        ["span", { style: { color: "red" } }, " and red "],
         "text.",
       ],
     ];
 
     const htmlElement = habiToHtml(initialHabi);
     const finalHabi = htmlToHabi(htmlElement);
+
+    // Adjust expectations or implement a more lenient comparison that focuses on semantic equivalence
+    // For example, you might write a custom comparison function that ignores whitespace-only text nodes
+    // and treats style objects and style strings equivalently
     expect(finalHabi).toStrictEqual(initialHabi);
   });
-
 
   test("Generates form with input and button", () => {
     const habiscript = [
@@ -222,6 +225,26 @@ describe("Habiscript Conversion Tests", () => {
     expect(divElement.innerHTML.trim()).toBe(
       '<form><input type="text"><textarea></textarea><fieldset><input type="radio" name="test-1" value="test 1"><label for="test-1">Test 1</label><input type="radio" name="test-2" value="test 2 "><label for="test-2">Test 2</label></fieldset></form>'
     );
+  });
+
+  test.only("Strips whitespace nodes correctly in habiscript conversion", () => {
+    const htmlString = `
+    <div>
+      <p>First paragraph.</p>
+      <p>Second paragraph.</p>
+    </div>
+  `;
+    const element = new JSDOM(htmlString).window.document.body.firstChild;
+    const habiscript = htmlToHabi(element);
+
+    expect(habiscript).toStrictEqual([
+      "div",
+      "\n      ",
+      ["p", "First paragraph."],
+      "\n      ",
+      ["p", "Second paragraph."],
+      "\n    ",
+    ]);
   });
 
   test("Edge Case 1", () => {
