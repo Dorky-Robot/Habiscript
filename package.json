@@ -1,12 +1,13 @@
 {
   "name": "habiscript",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Elevate Your Web Experience: Unify HTML, CSS, and JS with Habiscript",
   "main": "src/index.js",
   "browser": "dist/habiscript.bundle.js",
   "scripts": {
     "build": "rollup -c",
-    "test": "jest"
+    "test": "jest",
+    "watch": "rollup -c -w"
   },
   "repository": {
     "type": "git",

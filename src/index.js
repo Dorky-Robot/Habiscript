@@ -227,9 +227,23 @@ function style(tanawJS) {
   ]);
 }
 
-module.exports = {
-  habiToHtml,
-  htmlToHabi,
-  toElement,
-  style
-};
+function Habiscript(habi) {
+  const element = habiToHtml(habi);
+  if (typeof document !== 'undefined') {
+    document.body.appendChild(element);
+  }
+  return element;
+}
+
+// Attach other functions as properties
+Habiscript.habiToHtml = habiToHtml;
+Habiscript.htmlToHabi = htmlToHabi;
+Habiscript.toElement = toElement;
+Habiscript.style = style;
+
+// Export for both Node.js and browser environments
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = Habiscript;
+} else if (typeof window !== 'undefined') {
+  window.Habiscript = Habiscript;
+}
