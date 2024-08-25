@@ -227,11 +227,43 @@ function style(tanawJS) {
   ]);
 }
 
-function Habiscript(habi) {
-  const element = habiToHtml(habi);
-  if (typeof document !== 'undefined') {
-    document.body.appendChild(element);
+/**
+ * Converts a Habiscript array to an HTML element and inserts it at the script's location or a specified target.
+ * @param {string|Array} selectorOrHabi - Either a CSS selector string or a Habiscript array.
+ * @param {Array} [habi] - The Habiscript array (required if the first argument is a selector).
+ * @returns {Element} The created HTML element.
+ */
+function Habiscript(selectorOrHabi, habi) {
+  let targetSelector, habiArray;
+
+  if (typeof selectorOrHabi === 'string' && Array.isArray(habi)) {
+    targetSelector = selectorOrHabi;
+    habiArray = habi;
+  } else if (Array.isArray(selectorOrHabi)) {
+    habiArray = selectorOrHabi;
+  } else {
+    throw new Error('Invalid arguments. Expected a selector string and Habiscript array, or just a Habiscript array.');
   }
+
+  const element = habiToHtml(habiArray);
+
+  if (targetSelector) {
+    const targetElement = document.querySelector(targetSelector);
+    if (targetElement) {
+      targetElement.appendChild(element);
+    } else {
+      console.warn(`Target element with selector "${targetSelector}" not found.`);
+    }
+  } else {
+    // Insert the element at the script's location
+    const currentScript = document.currentScript;
+    if (currentScript && currentScript.parentNode) {
+      currentScript.parentNode.insertBefore(element, currentScript.nextSibling);
+    } else {
+      console.warn('Unable to determine script location. Element created but not inserted.');
+    }
+  }
+
   return element;
 }
 
