@@ -344,41 +344,57 @@ var tanaw_bundleExports = tanaw_bundle.exports;
 	 * Converts a Habiscript array to an HTML element and inserts it at the script's location or a specified target.
 	 * @param {string|Array} selectorOrHabi - Either a CSS selector string or a Habiscript array.
 	 * @param {Array} [habi] - The Habiscript array (required if the first argument is a selector).
-	 * @returns {Element} The created HTML element.
+	 * @returns {Element|Promise} The created HTML element or a promise that resolves when the element is inserted.
 	 */
 	function Habiscript(selectorOrHabi, habi) {
-	  let targetSelector, habiArray;
+	  let targetSelector = typeof selectorOrHabi === 'string' ? selectorOrHabi : null;
+	  let habiArray = Array.isArray(selectorOrHabi) ? selectorOrHabi : habi;
 
-	  if (typeof selectorOrHabi === 'string' && Array.isArray(habi)) {
-	    targetSelector = selectorOrHabi;
-	    habiArray = habi;
-	  } else if (Array.isArray(selectorOrHabi)) {
-	    habiArray = selectorOrHabi;
-	  } else {
+	  if (!habiArray || (targetSelector && !habi)) {
 	    throw new Error('Invalid arguments. Expected a selector string and Habiscript array, or just a Habiscript array.');
 	  }
 
 	  const element = habiToHtml(habiArray);
-
 	  if (targetSelector) {
-	    const targetElement = document.querySelector(targetSelector);
-	    if (targetElement) {
-	      targetElement.appendChild(element);
-	    } else {
-	      console.warn(`Target element with selector "${targetSelector}" not found.`);
-	    }
+	    return insertAtTarget(targetSelector, element);
 	  } else {
-	    // Insert the element at the script's location
-	    const currentScript = document.currentScript;
-	    if (currentScript && currentScript.parentNode) {
-	      currentScript.parentNode.insertBefore(element, currentScript.nextSibling);
-	    } else {
-	      console.warn('Unable to determine script location. Element created but not inserted.');
-	    }
+	    return insertAtScriptLocation(element);
 	  }
+	}
 
+	function insertAtTarget(targetSelector, element) {
+	  if (document.readyState === 'loading') {
+	    return new Promise((resolve) => {
+	      document.addEventListener('DOMContentLoaded', () => {
+	        appendToTarget(targetSelector, element);
+	        resolve(element);
+	      });
+	    });
+	  } else {
+	    appendToTarget(targetSelector, element);
+	    return element;
+	  }
+	}
+
+	function appendToTarget(targetSelector, element) {
+	  const targetElement = document.querySelector(targetSelector);
+	  if (targetElement) {
+	    targetElement.appendChild(element);
+	  } else {
+	    console.warn(`Target element with selector "${targetSelector}" not found.`);
+	  }
+	}
+
+	function insertAtScriptLocation(element) {
+	  const currentScript = document.currentScript;
+	  if (currentScript && currentScript.parentNode) {
+	    currentScript.parentNode.insertBefore(element, currentScript.nextSibling);
+	  } else {
+	    console.warn('Unable to determine script location. Element created but not inserted.');
+	  }
 	  return element;
 	}
+
 
 	// Attach other functions as properties
 	Habiscript.habiToHtml = habiToHtml;
