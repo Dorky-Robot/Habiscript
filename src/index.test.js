@@ -227,7 +227,7 @@ describe("Habiscript Conversion Tests", () => {
     );
   });
 
-  test.only("Strips whitespace nodes correctly in habiscript conversion", () => {
+  test("Strips whitespace nodes correctly in habiscript conversion", () => {
     const htmlString = `
     <div>
       <p>First paragraph.</p>
