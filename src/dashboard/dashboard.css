@@ -1,0 +1,103 @@
+/* Dashboard Layout */
+.habi-dashboard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.habi-row {
+  display: flex;
+  flex-direction: row;
+  min-height: 200px;
+  flex-shrink: 0;
+}
+
+.habi-cell {
+  flex: 1;
+  min-width: 100px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.habi-widget-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--habi-border, #2a2a2a);
+  border-radius: var(--habi-radius, 6px);
+  margin: 4px;
+  background: var(--habi-widget-bg, #1a1a1a);
+}
+
+.habi-widget-error {
+  color: #e55;
+  padding: 1rem;
+  font-size: 0.85rem;
+}
+
+/* Resize handles */
+.habi-col-handle {
+  width: 6px;
+  cursor: col-resize;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+.habi-col-handle:hover,
+.habi-col-handle:active {
+  background: var(--habi-accent, #4a9eff);
+  opacity: 0.5;
+  border-radius: 3px;
+}
+
+.habi-row-handle {
+  height: 6px;
+  cursor: row-resize;
+  flex-shrink: 0;
+}
+.habi-row-handle:hover,
+.habi-row-handle:active {
+  background: var(--habi-accent, #4a9eff);
+  opacity: 0.5;
+  border-radius: 3px;
+}
+
+/* Add buttons */
+.habi-add-row {
+  width: 100%;
+  padding: 8px;
+  border: 2px dashed var(--habi-border, #2a2a2a);
+  border-radius: var(--habi-radius, 6px);
+  background: transparent;
+  color: var(--habi-text-muted, #666);
+  font-size: 1.2rem;
+  cursor: pointer;
+  margin: 4px;
+  flex-shrink: 0;
+}
+.habi-add-row:hover {
+  border-color: var(--habi-accent, #4a9eff);
+  color: var(--habi-accent, #4a9eff);
+}
+
+.habi-add-widget {
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--habi-text-muted, #666);
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.habi-add-widget:hover {
+  color: var(--habi-accent, #4a9eff);
+  background: var(--habi-hover-bg, rgba(74, 158, 255, 0.05));
+}

@@ -283,11 +283,24 @@ function insertAtScriptLocation(element) {
 }
 
 
+// Widget and dashboard modules
+const { registerWidget, createWidget, become, listWidgetTypes } = require("./widget");
+const { createDashboard } = require("./dashboard");
+
 // Attach other functions as properties
 Habiscript.habiToHtml = habiToHtml;
 Habiscript.htmlToHabi = htmlToHabi;
 Habiscript.toElement = toElement;
 Habiscript.style = style;
+
+// Widget system
+Habiscript.registerWidget = registerWidget;
+Habiscript.createWidget = createWidget;
+Habiscript.become = become;
+Habiscript.listWidgetTypes = listWidgetTypes;
+
+// Dashboard layout
+Habiscript.createDashboard = createDashboard;
 
 // Export for both Node.js and browser environments
 if (typeof module !== 'undefined' && module.exports) {
