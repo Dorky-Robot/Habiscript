@@ -296,12 +296,15 @@ function createDashboard(el, opts = {}) {
               widgetEl.classList.add("habi-widget-error");
             }
           }
-          // Add drag handle for reordering
+          // Add drag handle bar for reordering (full-width, always visible)
           if (!widgetEl.querySelector(".habi-drag-handle")) {
             const grip = document.createElement("div");
             grip.className = "habi-drag-handle";
-            grip.innerHTML = "⠿";
+            grip.innerHTML = '<span class="habi-drag-dots">⠿</span>';
             grip.title = "Drag to move";
+            // Stop propagation so widget content doesn't steal the event
+            grip.addEventListener("mousedown", (e) => { e.stopPropagation(); });
+            grip.addEventListener("touchstart", (e) => { e.stopPropagation(); }, { passive: false });
             addDragListeners(grip, (e) => startWidgetDrag(e, cell.id));
             widgetEl.prepend(grip);
           }
