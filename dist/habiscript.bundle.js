@@ -465,17 +465,21 @@
 	    el.classList.add("resizing-col");
 
 	    const startX = e.clientX;
+	    const rowWidth = rowEl.offsetWidth;
 	    const leftWidth = leftCellEl.offsetWidth;
 	    const rightWidth = rightCellEl.offsetWidth;
 	    const totalWidth = leftWidth + rightWidth;
+	    // Minimum 10% of row width per cell
+	    const minPx = Math.max(80, rowWidth * 0.1);
 
 	    function onMove(e) {
 	      const x = e.clientX ?? e.touches?.[0]?.clientX ?? startX;
 	      const dx = x - startX;
-	      const newLeft = Math.max(100, Math.min(totalWidth - 100, leftWidth + dx));
+	      const newLeft = Math.max(minPx, Math.min(totalWidth - minPx, leftWidth + dx));
 	      const newRight = totalWidth - newLeft;
-	      const leftPct = ((newLeft / totalWidth) * 100).toFixed(1) + "%";
-	      const rightPct = ((newRight / totalWidth) * 100).toFixed(1) + "%";
+	      // Express as percentage of full row, not just the two cells
+	      const leftPct = ((newLeft / rowWidth) * 100).toFixed(1) + "%";
+	      const rightPct = ((newRight / rowWidth) * 100).toFixed(1) + "%";
 
 	      leftCellEl.style.flex = `0 0 ${leftPct}`;
 	      rightCellEl.style.flex = `0 0 ${rightPct}`;
@@ -707,6 +711,13 @@
 	      const insertIdx = drop.type === "insert-before" ? targetIdx : targetIdx + 1;
 	      targetRow.cells.splice(insertIdx, 0, sourceCell);
 
+	      // Redistribute widths evenly in the target row
+	      redistributeWidths(targetRow);
+	      // Also redistribute source row if it still has cells
+	      if (sourceRow.cells.length > 0 && sourceRow !== targetRow) {
+	        redistributeWidths(sourceRow);
+	      }
+
 	      // Clean up empty source row
 	      if (sourceRow.cells.length === 0) {
 	        layout.rows = layout.rows.filter((r) => r.id !== sourceRow.id);
@@ -730,6 +741,15 @@
 	  }
 
 	  // --- Helpers ---
+
+	  /**
+	   * Reset all cell widths in a row so they distribute evenly.
+	   */
+	  function redistributeWidths(row) {
+	    for (const cell of row.cells) {
+	      cell.width = null;
+	    }
+	  }
 
 	  function notifyChange() {
 	    if (onLayoutChange) onLayoutChange(layout);

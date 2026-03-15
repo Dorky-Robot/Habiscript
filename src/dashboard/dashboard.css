@@ -15,11 +15,12 @@
   min-height: 150px;
   flex-shrink: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .habi-cell {
   flex: 1;
-  min-width: 80px;
+  min-width: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
