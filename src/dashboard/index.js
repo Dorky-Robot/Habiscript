@@ -405,7 +405,12 @@ function createDashboard(el, opts = {}) {
       widgetEl.classList.remove("dragging");
       clearDropFeedback();
 
-      if (lastDrop) executeDrop(cellId, lastDrop);
+      if (lastDrop) {
+        // FLIP animation: capture old positions, mutate, animate to new positions
+        const snapshot = capturePositions();
+        executeDrop(cellId, lastDrop);
+        animateFromSnapshot(snapshot);
+      }
     }
 
     document.addEventListener("mousemove", onMove);
@@ -559,6 +564,59 @@ function createDashboard(el, opts = {}) {
   }
 
   // --- Helpers ---
+
+  // --- FLIP animation ---
+
+  /**
+   * Capture bounding rects of all widget containers keyed by cell ID.
+   */
+  function capturePositions() {
+    const positions = new Map();
+    for (const [cellId, widgetEl] of widgetEls) {
+      if (widgetEl.offsetParent !== null) {
+        positions.set(cellId, widgetEl.getBoundingClientRect());
+      }
+    }
+    return positions;
+  }
+
+  /**
+   * After a layout change, animate widgets from their old positions
+   * to their new positions using FLIP.
+   */
+  function animateFromSnapshot(oldPositions) {
+    for (const [cellId, widgetEl] of widgetEls) {
+      const oldRect = oldPositions.get(cellId);
+      if (!oldRect || widgetEl.offsetParent === null) continue;
+
+      const newRect = widgetEl.getBoundingClientRect();
+      const dx = oldRect.left - newRect.left;
+      const dy = oldRect.top - newRect.top;
+      const sx = oldRect.width / (newRect.width || 1);
+      const sy = oldRect.height / (newRect.height || 1);
+
+      // Skip if barely moved
+      if (Math.abs(dx) < 2 && Math.abs(dy) < 2 && Math.abs(sx - 1) < 0.01 && Math.abs(sy - 1) < 0.01) continue;
+
+      // Invert: place at old position
+      widgetEl.style.transform = `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})`;
+      widgetEl.style.transformOrigin = "top left";
+      widgetEl.style.transition = "none";
+
+      // Play: animate to new position
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          widgetEl.style.transition = "transform 0.25s cubic-bezier(0.2, 0, 0, 1)";
+          widgetEl.style.transform = "";
+          widgetEl.addEventListener("transitionend", function cleanup() {
+            widgetEl.removeEventListener("transitionend", cleanup);
+            widgetEl.style.transition = "";
+            widgetEl.style.transformOrigin = "";
+          }, { once: true });
+        });
+      });
+    }
+  }
 
   /**
    * Reset all cell widths in a row so they distribute evenly.
