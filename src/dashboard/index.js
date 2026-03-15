@@ -11,6 +11,11 @@
  *
  * Layout state is a simple JSON structure:
  *   { rows: [{ id, height, cells: [{ id, width, widgetType, context }] }] }
+ *
+ * Widget DOM preservation: when the layout re-renders (e.g. after adding
+ * a row), existing widget containers are detached and re-inserted — not
+ * destroyed. This preserves xterm.js terminals, WebSocket connections,
+ * and other stateful widget content across layout changes.
  */
 
 const { createWidget, become } = require("../widget");
@@ -22,25 +27,32 @@ const { createWidget, become } = require("../widget");
  * @param {object} opts
  * @param {object} opts.layout - Initial layout state
  * @param {function} opts.onLayoutChange - Called when layout changes (for persistence)
+ * @param {function} opts.onAddWidget - Called when user clicks "+ Add widget"
  * @returns {object} Dashboard API
  */
 function createDashboard(el, opts = {}) {
   const { onLayoutChange } = opts;
   let layout = opts.layout || { rows: [] };
-  const widgets = new Map(); // cellId → widget instance
+  const widgets = new Map();       // cellId → widget instance
+  const widgetEls = new Map();     // cellId → widget container DOM node (preserved across re-renders)
 
   el.classList.add("habi-dashboard");
 
   /**
    * Render the full dashboard from layout state.
+   * Preserves existing widget DOM nodes by detaching and re-inserting them.
    */
   function render() {
-    // Unmount all existing widgets
-    for (const [, widget] of widgets) {
-      try { widget.unmount(); } catch { /* already unmounted */ }
+    // Detach (don't destroy) existing widget containers
+    for (const [cellId, widgetEl] of widgetEls) {
+      if (widgetEl.parentNode) widgetEl.parentNode.removeChild(widgetEl);
     }
-    widgets.clear();
+
+    // Clear scaffold (rows, handles, buttons) but widgets are safely detached
     el.innerHTML = "";
+
+    // Track which cells are still in the layout
+    const activeCellIds = new Set();
 
     for (const row of layout.rows) {
       const rowEl = document.createElement("div");
@@ -50,12 +62,13 @@ function createDashboard(el, opts = {}) {
 
       for (let i = 0; i < row.cells.length; i++) {
         const cell = row.cells[i];
+        activeCellIds.add(cell.id);
 
         // Resize handle between cells
         if (i > 0) {
           const handle = document.createElement("div");
           handle.className = "habi-col-handle";
-          handle.addEventListener("mousedown", (e) => startColResize(e, row, i - 1, i));
+          addDragListeners(handle, (e) => startColResize(e, row, i - 1, i));
           rowEl.appendChild(handle);
         }
 
@@ -65,22 +78,29 @@ function createDashboard(el, opts = {}) {
         if (cell.width) cellEl.style.flex = `0 0 ${cell.width}`;
         else cellEl.style.flex = "1";
 
-        // Widget container
-        const widgetEl = document.createElement("div");
-        widgetEl.className = "habi-widget-container";
-        cellEl.appendChild(widgetEl);
-
         if (cell.widgetType) {
-          try {
-            const widget = become(widgetEl, cell.widgetType, cell.context || {});
-            widgets.set(cell.id, widget);
-          } catch (err) {
-            widgetEl.textContent = `Widget error: ${err.message}`;
-            widgetEl.classList.add("habi-widget-error");
+          // Re-use existing widget container or create new one
+          let widgetEl = widgetEls.get(cell.id);
+          if (!widgetEl) {
+            widgetEl = document.createElement("div");
+            widgetEl.className = "habi-widget-container";
+            widgetEls.set(cell.id, widgetEl);
+
+            try {
+              const widget = become(widgetEl, cell.widgetType, cell.context || {});
+              widgets.set(cell.id, widget);
+            } catch (err) {
+              widgetEl.textContent = `Widget error: ${err.message}`;
+              widgetEl.classList.add("habi-widget-error");
+            }
           }
+          cellEl.appendChild(widgetEl);
         } else {
           // Empty cell — show add button
+          const widgetEl = document.createElement("div");
+          widgetEl.className = "habi-widget-container";
           renderEmptyCell(widgetEl, cell);
+          cellEl.appendChild(widgetEl);
         }
 
         rowEl.appendChild(cellEl);
@@ -91,8 +111,17 @@ function createDashboard(el, opts = {}) {
       // Row resize handle
       const rowHandle = document.createElement("div");
       rowHandle.className = "habi-row-handle";
-      rowHandle.addEventListener("mousedown", (e) => startRowResize(e, row));
+      addDragListeners(rowHandle, (e) => startRowResize(e, row));
       el.appendChild(rowHandle);
+    }
+
+    // Clean up widgets for cells no longer in the layout
+    for (const [cellId, widget] of widgets) {
+      if (!activeCellIds.has(cellId)) {
+        try { widget.unmount(); } catch { /* ok */ }
+        widgets.delete(cellId);
+        widgetEls.delete(cellId);
+      }
     }
 
     // Add-row button
@@ -100,9 +129,7 @@ function createDashboard(el, opts = {}) {
     addRowBtn.className = "habi-add-row";
     addRowBtn.textContent = "+";
     addRowBtn.title = "Add row";
-    addRowBtn.addEventListener("click", () => {
-      addRow();
-    });
+    addRowBtn.addEventListener("click", () => addRow());
     el.appendChild(addRowBtn);
   }
 
@@ -140,7 +167,7 @@ function createDashboard(el, opts = {}) {
   function addCell(rowId, widgetType, context) {
     const row = layout.rows.find((r) => r.id === rowId);
     if (!row) return null;
-    if (row.cells.length >= 4) return null; // Max 4 per row
+    if (row.cells.length >= 4) return null;
 
     const cell = { id: generateId(), width: null, widgetType, context: context || {} };
     row.cells.push(cell);
@@ -153,18 +180,12 @@ function createDashboard(el, opts = {}) {
     for (const row of layout.rows) {
       const idx = row.cells.findIndex((c) => c.id === cellId);
       if (idx !== -1) {
-        const widget = widgets.get(cellId);
-        if (widget) {
-          try { widget.unmount(); } catch { /* ok */ }
-          widgets.delete(cellId);
-        }
         row.cells.splice(idx, 1);
-        // Remove empty rows
         if (row.cells.length === 0) {
           layout.rows = layout.rows.filter((r) => r.id !== row.id);
         }
         notifyChange();
-        render();
+        render(); // Widget cleanup happens in render()'s activeCellIds check
         return true;
       }
     }
@@ -175,12 +196,13 @@ function createDashboard(el, opts = {}) {
     for (const row of layout.rows) {
       const cell = row.cells.find((c) => c.id === cellId);
       if (cell) {
-        // Unmount existing widget
+        // Unmount and discard old widget — this cell gets a new one
         const existing = widgets.get(cellId);
         if (existing) {
           try { existing.unmount(); } catch { /* ok */ }
           widgets.delete(cellId);
         }
+        widgetEls.delete(cellId);
         cell.widgetType = widgetType;
         cell.context = context || {};
         notifyChange();
@@ -191,33 +213,46 @@ function createDashboard(el, opts = {}) {
     return false;
   }
 
-  // --- Resize handling ---
+  // --- Resize handling (mouse + touch) ---
+
+  function addDragListeners(el, onStart) {
+    el.addEventListener("mousedown", onStart);
+    el.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) {
+        onStart(normalizeTouchEvent(e));
+      }
+    }, { passive: false });
+  }
+
+  function normalizeTouchEvent(e) {
+    e.preventDefault();
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, preventDefault() {} };
+  }
 
   function startColResize(e, row, leftIdx, rightIdx) {
     e.preventDefault();
     const rowEl = el.querySelector(`[data-row-id="${row.id}"]`);
     if (!rowEl) return;
 
-    const cells = rowEl.querySelectorAll(".habi-cell");
-    const leftCell = cells[leftIdx];
-    const rightCell = cells[rightIdx];
-    if (!leftCell || !rightCell) return;
+    const leftCellEl = rowEl.querySelector(`[data-cell-id="${row.cells[leftIdx].id}"]`);
+    const rightCellEl = rowEl.querySelector(`[data-cell-id="${row.cells[rightIdx].id}"]`);
+    if (!leftCellEl || !rightCellEl) return;
 
     const startX = e.clientX;
-    const leftWidth = leftCell.offsetWidth;
-    const rightWidth = rightCell.offsetWidth;
+    const leftWidth = leftCellEl.offsetWidth;
+    const rightWidth = rightCellEl.offsetWidth;
     const totalWidth = leftWidth + rightWidth;
 
     function onMove(e) {
-      const dx = e.clientX - startX;
+      const x = e.clientX ?? e.touches?.[0]?.clientX ?? startX;
+      const dx = x - startX;
       const newLeft = Math.max(100, Math.min(totalWidth - 100, leftWidth + dx));
       const newRight = totalWidth - newLeft;
       const leftPct = ((newLeft / totalWidth) * 100).toFixed(1) + "%";
       const rightPct = ((newRight / totalWidth) * 100).toFixed(1) + "%";
 
-      leftCell.style.flex = `0 0 ${leftPct}`;
-      rightCell.style.flex = `0 0 ${rightPct}`;
-
+      leftCellEl.style.flex = `0 0 ${leftPct}`;
+      rightCellEl.style.flex = `0 0 ${rightPct}`;
       row.cells[leftIdx].width = leftPct;
       row.cells[rightIdx].width = rightPct;
     }
@@ -225,11 +260,15 @@ function createDashboard(el, opts = {}) {
     function onUp() {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onUp);
       notifyChange();
     }
 
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onUp);
   }
 
   function startRowResize(e, row) {
@@ -241,7 +280,8 @@ function createDashboard(el, opts = {}) {
     const startHeight = rowEl.offsetHeight;
 
     function onMove(e) {
-      const dy = e.clientY - startY;
+      const y = e.clientY ?? e.touches?.[0]?.clientY ?? startY;
+      const dy = y - startY;
       const newHeight = Math.max(100, startHeight + dy);
       rowEl.style.height = newHeight + "px";
       row.height = newHeight + "px";
@@ -250,11 +290,15 @@ function createDashboard(el, opts = {}) {
     function onUp() {
       document.removeEventListener("mousemove", onMove);
       document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onUp);
       notifyChange();
     }
 
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onUp);
   }
 
   // --- Helpers ---
@@ -276,6 +320,7 @@ function createDashboard(el, opts = {}) {
       try { widget.unmount(); } catch { /* ok */ }
     }
     widgets.clear();
+    widgetEls.clear();
     el.innerHTML = "";
   }
 
