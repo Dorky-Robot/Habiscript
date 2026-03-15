@@ -11,16 +11,18 @@
 .habi-row {
   display: flex;
   flex-direction: row;
-  min-height: 200px;
+  min-height: 150px;
   flex-shrink: 0;
+  position: relative;
 }
 
 .habi-cell {
   flex: 1;
-  min-width: 100px;
+  min-width: 80px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .habi-widget-container {
@@ -32,6 +34,11 @@
   border-radius: var(--habi-radius, 6px);
   margin: 4px;
   background: var(--habi-widget-bg, #1a1a1a);
+  transition: border-color 0.15s ease;
+}
+
+.habi-widget-container:hover {
+  border-color: var(--habi-border-hover, #444);
 }
 
 .habi-widget-error {
@@ -40,34 +47,155 @@
   font-size: 0.85rem;
 }
 
-/* Resize handles */
+/* --- Resize handles ---
+ * Wide invisible grab area with a thin visible indicator line.
+ * The handle itself is wide for easy grabbing; the visible line
+ * is drawn with a pseudo-element.
+ */
+
+/* Column resize */
 .habi-col-handle {
-  width: 6px;
+  width: 12px;
+  margin: 0 -6px;
   cursor: col-resize;
   flex-shrink: 0;
   position: relative;
   z-index: 10;
-}
-.habi-col-handle:hover,
-.habi-col-handle:active {
-  background: var(--habi-accent, #4a9eff);
-  opacity: 0.5;
-  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.habi-col-handle::after {
+  content: "";
+  width: 3px;
+  height: 32px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.15s ease, height 0.15s ease;
+}
+
+.habi-col-handle:hover::after {
+  background: var(--habi-accent, #4a9eff);
+  height: 48px;
+  opacity: 0.7;
+}
+
+.habi-dashboard.resizing-col .habi-col-handle.active::after {
+  background: var(--habi-accent, #4a9eff);
+  height: 100%;
+  opacity: 0.5;
+}
+
+/* Row resize */
 .habi-row-handle {
-  height: 6px;
+  height: 12px;
+  margin: -6px 0;
   cursor: row-resize;
   flex-shrink: 0;
-}
-.habi-row-handle:hover,
-.habi-row-handle:active {
-  background: var(--habi-accent, #4a9eff);
-  opacity: 0.5;
-  border-radius: 3px;
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Add buttons */
+.habi-row-handle::after {
+  content: "";
+  height: 3px;
+  width: 48px;
+  border-radius: 2px;
+  background: transparent;
+  transition: background 0.15s ease, width 0.15s ease;
+}
+
+.habi-row-handle:hover::after {
+  background: var(--habi-accent, #4a9eff);
+  width: 80px;
+  opacity: 0.7;
+}
+
+.habi-dashboard.resizing-row .habi-row-handle.active::after {
+  background: var(--habi-accent, #4a9eff);
+  width: 100%;
+  opacity: 0.5;
+}
+
+/* Prevent text selection and pointer events on widgets during resize */
+.habi-dashboard.resizing-col,
+.habi-dashboard.resizing-row {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.habi-dashboard.resizing-col { cursor: col-resize; }
+.habi-dashboard.resizing-row { cursor: row-resize; }
+
+.habi-dashboard.resizing-col .habi-widget-container,
+.habi-dashboard.resizing-row .habi-widget-container {
+  pointer-events: none;
+}
+
+/* --- Widget drag --- */
+
+.habi-widget-container.dragging {
+  opacity: 0.4;
+  border-style: dashed;
+}
+
+.habi-cell.drop-target .habi-widget-container {
+  border-color: var(--habi-accent, #4a9eff);
+  box-shadow: 0 0 0 2px var(--habi-accent, #4a9eff);
+}
+
+.habi-drop-placeholder {
+  border: 2px dashed var(--habi-accent, #4a9eff);
+  border-radius: var(--habi-radius, 6px);
+  margin: 4px;
+  background: var(--habi-accent, #4a9eff);
+  opacity: 0.08;
+  min-height: 80px;
+  flex: 1;
+}
+
+/* --- Widget drag handle (top-left grip icon) --- */
+.habi-widget-container {
+  position: relative;
+}
+
+.habi-drag-handle {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 20px;
+  height: 20px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  z-index: 5;
+  color: var(--habi-text-muted, #666);
+  font-size: 12px;
+}
+
+.habi-drag-handle:hover {
+  background: var(--habi-accent, #4a9eff);
+  opacity: 1 !important;
+  color: #fff;
+}
+
+.habi-widget-container:hover .habi-drag-handle {
+  opacity: 0.6;
+}
+
+.habi-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* --- Add buttons --- */
 .habi-add-row {
   width: 100%;
   padding: 8px;
@@ -79,6 +207,7 @@
   cursor: pointer;
   margin: 4px;
   flex-shrink: 0;
+  transition: border-color 0.15s ease, color 0.15s ease;
 }
 .habi-add-row:hover {
   border-color: var(--habi-accent, #4a9eff);
@@ -96,6 +225,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.15s ease, background 0.15s ease;
 }
 .habi-add-widget:hover {
   color: var(--habi-accent, #4a9eff);

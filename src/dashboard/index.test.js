@@ -56,8 +56,8 @@ describe("Dashboard Layout", () => {
 
       const widgets = el.querySelectorAll("[data-widget]");
       expect(widgets.length).toBe(2);
-      expect(widgets[0].textContent).toBe("first");
-      expect(widgets[1].textContent).toBe("second");
+      expect(widgets[0].textContent).toContain("first");
+      expect(widgets[1].textContent).toContain("second");
     });
 
     test("renders column resize handle between cells", () => {
@@ -160,7 +160,7 @@ describe("Dashboard Layout", () => {
       ]);
 
       expect(el.querySelectorAll(".habi-row").length).toBe(1);
-      expect(el.querySelector("[data-widget]").textContent).toBe("pre");
+      expect(el.querySelector("[data-widget]").textContent).toContain("pre");
     });
 
     test("updates layout state", () => {
@@ -227,7 +227,7 @@ describe("Dashboard Layout", () => {
       const result = dash.removeCell("c2");
       expect(result).toBe(true);
       expect(el.querySelectorAll(".habi-cell").length).toBe(1);
-      expect(el.querySelector("[data-widget]").textContent).toBe("keep");
+      expect(el.querySelector("[data-widget]").textContent).toContain("keep");
     });
 
     test("removes entire row when last cell is removed", () => {
@@ -293,10 +293,10 @@ describe("Dashboard Layout", () => {
         },
       });
 
-      expect(el.querySelector("[data-widget]").textContent).toBe("old");
+      expect(el.querySelector("[data-widget]").textContent).toContain("old");
 
       dash.setCellWidget("c1", "test-widget", { label: "new" });
-      expect(el.querySelector("[data-widget]").textContent).toBe("new");
+      expect(el.querySelector("[data-widget]").textContent).toContain("new");
     });
 
     test("unmounts previous widget before replacing", () => {

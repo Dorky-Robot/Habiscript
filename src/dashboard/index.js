@@ -94,6 +94,15 @@ function createDashboard(el, opts = {}) {
               widgetEl.classList.add("habi-widget-error");
             }
           }
+          // Add drag handle for reordering
+          if (!widgetEl.querySelector(".habi-drag-handle")) {
+            const grip = document.createElement("div");
+            grip.className = "habi-drag-handle";
+            grip.innerHTML = "⠿";
+            grip.title = "Drag to move";
+            addDragListeners(grip, (e) => startWidgetDrag(e, cell.id));
+            widgetEl.prepend(grip);
+          }
           cellEl.appendChild(widgetEl);
         } else {
           // Empty cell — show add button
@@ -238,6 +247,12 @@ function createDashboard(el, opts = {}) {
     const rightCellEl = rowEl.querySelector(`[data-cell-id="${row.cells[rightIdx].id}"]`);
     if (!leftCellEl || !rightCellEl) return;
 
+    // Find the handle element and add active class
+    const handles = rowEl.querySelectorAll(".habi-col-handle");
+    const handleEl = handles[leftIdx]; // handle at index leftIdx is between left and right
+    if (handleEl) handleEl.classList.add("active");
+    el.classList.add("resizing-col");
+
     const startX = e.clientX;
     const leftWidth = leftCellEl.offsetWidth;
     const rightWidth = rightCellEl.offsetWidth;
@@ -262,6 +277,8 @@ function createDashboard(el, opts = {}) {
       document.removeEventListener("mouseup", onUp);
       document.removeEventListener("touchmove", onMove);
       document.removeEventListener("touchend", onUp);
+      if (handleEl) handleEl.classList.remove("active");
+      el.classList.remove("resizing-col");
       notifyChange();
     }
 
@@ -275,6 +292,11 @@ function createDashboard(el, opts = {}) {
     e.preventDefault();
     const rowEl = el.querySelector(`[data-row-id="${row.id}"]`);
     if (!rowEl) return;
+
+    // Find the row handle and add active class
+    const handleEl = rowEl.nextElementSibling;
+    if (handleEl?.classList.contains("habi-row-handle")) handleEl.classList.add("active");
+    el.classList.add("resizing-row");
 
     const startY = e.clientY;
     const startHeight = rowEl.offsetHeight;
@@ -292,6 +314,8 @@ function createDashboard(el, opts = {}) {
       document.removeEventListener("mouseup", onUp);
       document.removeEventListener("touchmove", onMove);
       document.removeEventListener("touchend", onUp);
+      if (handleEl?.classList.contains("habi-row-handle")) handleEl.classList.remove("active");
+      el.classList.remove("resizing-row");
       notifyChange();
     }
 
@@ -299,6 +323,91 @@ function createDashboard(el, opts = {}) {
     document.addEventListener("mouseup", onUp);
     document.addEventListener("touchmove", onMove, { passive: false });
     document.addEventListener("touchend", onUp);
+  }
+
+  // --- Widget drag-to-reorder ---
+
+  function startWidgetDrag(e, cellId) {
+    e.preventDefault();
+    const widgetEl = widgetEls.get(cellId);
+    if (!widgetEl) return;
+
+    widgetEl.classList.add("dragging");
+    let currentDropTarget = null;
+
+    function onMove(e) {
+      const x = e.clientX ?? e.touches?.[0]?.clientX;
+      const y = e.clientY ?? e.touches?.[0]?.clientY;
+      if (x === undefined || y === undefined) return;
+
+      // Find cell under cursor (excluding the dragged widget's cell)
+      const target = findDropTarget(x, y, cellId);
+
+      if (target !== currentDropTarget) {
+        if (currentDropTarget) {
+          const prevCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
+          if (prevCell) prevCell.classList.remove("drop-target");
+        }
+        currentDropTarget = target;
+        if (currentDropTarget) {
+          const nextCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
+          if (nextCell) nextCell.classList.add("drop-target");
+        }
+      }
+    }
+
+    function onUp() {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.removeEventListener("touchmove", onMove);
+      document.removeEventListener("touchend", onUp);
+
+      widgetEl.classList.remove("dragging");
+      if (currentDropTarget) {
+        const prevCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
+        if (prevCell) prevCell.classList.remove("drop-target");
+        swapCells(cellId, currentDropTarget);
+      }
+    }
+
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+    document.addEventListener("touchmove", onMove, { passive: false });
+    document.addEventListener("touchend", onUp);
+  }
+
+  function findDropTarget(x, y, excludeCellId) {
+    const cells = el.querySelectorAll(".habi-cell");
+    for (const cell of cells) {
+      if (cell.dataset.cellId === excludeCellId) continue;
+      const rect = cell.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+        return cell.dataset.cellId;
+      }
+    }
+    return null;
+  }
+
+  function swapCells(cellIdA, cellIdB) {
+    let cellA = null, cellB = null;
+    let rowA = null, rowB = null;
+    let idxA = -1, idxB = -1;
+
+    for (const row of layout.rows) {
+      for (let i = 0; i < row.cells.length; i++) {
+        if (row.cells[i].id === cellIdA) { cellA = row.cells[i]; rowA = row; idxA = i; }
+        if (row.cells[i].id === cellIdB) { cellB = row.cells[i]; rowB = row; idxB = i; }
+      }
+    }
+
+    if (!cellA || !cellB) return;
+
+    // Swap in layout
+    rowA.cells[idxA] = cellB;
+    rowB.cells[idxB] = cellA;
+
+    notifyChange();
+    render();
   }
 
   // --- Helpers ---

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habiscript Dashboard Demo</title>
+  <link rel="stylesheet" href="../src/dashboard/dashboard.css">
+  <style>
+    :root {
+      --habi-border: #333;
+      --habi-radius: 8px;
+      --habi-widget-bg: #1a1a1e;
+      --habi-accent: #4a9eff;
+      --habi-text-muted: #666;
+      --habi-hover-bg: rgba(74, 158, 255, 0.05);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0e0e10;
+      color: #e0e0e0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #16161a;
+      flex-shrink: 0;
+    }
+    header h1 { font-size: 1rem; font-weight: 600; }
+    header .badge {
+      font-size: 0.7rem;
+      background: #4a9eff22;
+      color: #4a9eff;
+      padding: 2px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    #dashboard { flex: 1; overflow: hidden; }
+
+    /* Demo widget styles */
+    .demo-widget {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+    .demo-widget-header {
+      padding: 8px 12px;
+      border-bottom: 1px solid #333;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #1e1e22;
+      flex-shrink: 0;
+    }
+    .demo-widget-header .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .dot-green { background: #4ade80; }
+    .dot-blue { background: #4a9eff; }
+    .dot-amber { background: #fbbf24; }
+    .demo-widget-body {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+    }
+    .chat-msg { margin-bottom: 8px; padding: 8px; border-radius: 6px; }
+    .chat-msg.user { background: #4a9eff15; border: 1px solid #4a9eff30; margin-left: 20%; }
+    .chat-msg.agent { background: #1e1e22; border: 1px solid #333; margin-right: 20%; }
+    .chat-msg.tool { background: #1e1e22; border: 1px solid #333; font-size: 0.75rem; opacity: 0.8; }
+    .chat-msg .label { color: #4a9eff; font-weight: 600; font-size: 0.7rem; margin-bottom: 4px; }
+    .term-line { color: #a0a0a0; }
+    .term-line .prompt { color: #4ade80; }
+    .term-line .cmd { color: #e0e0e0; }
+
+    /* Widget picker modal */
+    .widget-picker-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+    }
+    .widget-picker {
+      background: #1e1e22; border: 1px solid #333; border-radius: 12px;
+      padding: 24px; min-width: 320px;
+    }
+    .widget-picker h3 { margin-bottom: 16px; font-size: 1rem; }
+    .widget-picker-option {
+      display: block; width: 100%; padding: 12px; margin-bottom: 8px;
+      background: #16161a; border: 1px solid #333; border-radius: 8px;
+      color: #e0e0e0; cursor: pointer; text-align: left; font-size: 0.85rem;
+    }
+    .widget-picker-option:hover { border-color: #4a9eff; }
+    .widget-picker-option .opt-title { font-weight: 600; }
+    .widget-picker-option .opt-desc { font-size: 0.75rem; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>kubo: dorkyrobot</h1>
+    <span class="badge">helm mode</span>
+  </header>
+  <div id="dashboard"></div>
+
+  <script src="../dist/habiscript.bundle.js"></script>
+  <script>
+    const H = window.Habiscript;
+
+    // --- Register demo widget types ---
+
+    H.registerWidget("yolo", {
+      create(el, ctx) {
+        el.innerHTML = "";
+        const w = document.createElement("div");
+        w.className = "demo-widget";
+        w.innerHTML = `
+          <div class="demo-widget-header">
+            <span class="dot dot-blue"></span>
+            yolo — ${ctx.cwd || "/work"}
+          </div>
+          <div class="demo-widget-body">
+            <div class="chat-msg user"><div class="label">You</div>${ctx.prompt || "What can you help me with?"}</div>
+            <div class="chat-msg agent"><div class="label">Claude</div>I can help you with this project. Let me take a look...</div>
+            <div class="chat-msg tool"><div class="label">Read</div>${ctx.cwd || "/work"}/package.json</div>
+            <div class="chat-msg agent"><div class="label">Claude</div>This is a Node.js project at version ${ctx.version || "1.0.0"}. What would you like to work on?</div>
+          </div>
+        `;
+        el.appendChild(w);
+        return {
+          update(ctx) {},
+          unmount() { el.innerHTML = ""; },
+        };
+      },
+    });
+
+    H.registerWidget("terminal", {
+      create(el, ctx) {
+        el.innerHTML = "";
+        const w = document.createElement("div");
+        w.className = "demo-widget";
+        w.innerHTML = `
+          <div class="demo-widget-header">
+            <span class="dot dot-green"></span>
+            terminal — ${ctx.session || "dev"}
+          </div>
+          <div class="demo-widget-body">
+            <div class="term-line"><span class="prompt">~ ❯</span> <span class="cmd">ls</span></div>
+            <div class="term-line">katulong  kubo  tunnels  yelo  habiscript  yolo</div>
+            <div class="term-line"><span class="prompt">~ ❯</span> <span class="cmd">cd ${ctx.cwd || "/work/katulong"}</span></div>
+            <div class="term-line"><span class="prompt">${ctx.cwd?.split("/").pop() || "katulong"} ❯</span> <span class="cmd">npm test</span></div>
+            <div class="term-line" style="color:#4ade80">Tests: 1106 passed, 0 failed</div>
+            <div class="term-line"><span class="prompt">${ctx.cwd?.split("/").pop() || "katulong"} ❯</span> <span class="cmd">▍</span></div>
+          </div>
+        `;
+        el.appendChild(w);
+        return {
+          update() {},
+          unmount() { el.innerHTML = ""; },
+        };
+      },
+    });
+
+    H.registerWidget("status", {
+      create(el, ctx) {
+        el.innerHTML = "";
+        const w = document.createElement("div");
+        w.className = "demo-widget";
+        w.innerHTML = `
+          <div class="demo-widget-header">
+            <span class="dot dot-amber"></span>
+            ${ctx.title || "status"}
+          </div>
+          <div class="demo-widget-body" style="display:flex;flex-direction:column;gap:8px;">
+            <div style="color:#4ade80">● katulong v0.24.0 — running on :3001</div>
+            <div style="color:#4ade80">● kubo container — dorkyrobot (up 2h)</div>
+            <div style="color:#4a9eff">● yolo — 2 active sessions</div>
+            <div style="color:#888">○ tunnels — no active tunnels</div>
+          </div>
+        `;
+        el.appendChild(w);
+        return {
+          update() {},
+          unmount() { el.innerHTML = ""; },
+        };
+      },
+    });
+
+    // --- Widget picker ---
+
+    function showWidgetPicker(cellId, resolve) {
+      const overlay = document.createElement("div");
+      overlay.className = "widget-picker-overlay";
+      overlay.innerHTML = `
+        <div class="widget-picker">
+          <h3>Add widget</h3>
+          <button class="widget-picker-option" data-type="yolo">
+            <div class="opt-title">Yolo Session</div>
+            <div class="opt-desc">Interactive Claude Code session pointed at a directory</div>
+          </button>
+          <button class="widget-picker-option" data-type="terminal">
+            <div class="opt-title">Terminal</div>
+            <div class="opt-desc">Raw shell access</div>
+          </button>
+          <button class="widget-picker-option" data-type="status">
+            <div class="opt-title">Status</div>
+            <div class="opt-desc">System status overview</div>
+          </button>
+        </div>
+      `;
+
+      overlay.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-type]");
+        if (btn) {
+          const type = btn.dataset.type;
+          const context = type === "yolo"
+            ? { cwd: "/work/habiscript", prompt: "Help me build the dashboard widget system" }
+            : type === "terminal"
+            ? { session: "new", cwd: "/work" }
+            : { title: "system status" };
+          resolve(type, context);
+          overlay.remove();
+        } else if (e.target === overlay) {
+          overlay.remove();
+        }
+      });
+
+      document.body.appendChild(overlay);
+    }
+
+    // --- Create dashboard with initial layout ---
+
+    const dashboard = H.createDashboard(document.getElementById("dashboard"), {
+      layout: {
+        rows: [
+          {
+            id: "r1", height: "55%",
+            cells: [
+              { id: "c1", width: "60%", widgetType: "yolo", context: { cwd: "/work/katulong", prompt: "Add helm mode dashboard with Habiscript widgets", version: "0.24.0" } },
+              { id: "c2", width: "40%", widgetType: "terminal", context: { session: "dev", cwd: "/work/katulong" } },
+            ],
+          },
+          {
+            id: "r2", height: null,
+            cells: [
+              { id: "c3", width: null, widgetType: "yolo", context: { cwd: "/work/habiscript", prompt: "Review the widget protocol tests", version: "1.6.0" } },
+              { id: "c4", width: null, widgetType: "status", context: { title: "system status" } },
+            ],
+          },
+        ],
+      },
+      onAddWidget: showWidgetPicker,
+      onLayoutChange: (layout) => {
+        console.log("Layout changed:", JSON.stringify(layout, null, 2));
+      },
+    });
+  </script>
+</body>
+</html>
