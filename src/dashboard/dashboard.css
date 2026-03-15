@@ -6,6 +6,7 @@
   width: 100%;
   gap: 0;
   overflow-y: auto;
+  position: relative;
 }
 
 .habi-row {
@@ -146,6 +147,20 @@
 .habi-cell.drop-target .habi-widget-container {
   border-color: var(--habi-accent, #4a9eff);
   box-shadow: 0 0 0 2px var(--habi-accent, #4a9eff);
+}
+
+/* Insertion indicator line — shown when dragging between cells */
+.habi-insert-indicator {
+  background: var(--habi-accent, #4a9eff);
+  border-radius: 2px;
+  z-index: 20;
+  pointer-events: none;
+  box-shadow: 0 0 8px var(--habi-accent, #4a9eff);
+}
+
+.habi-insert-indicator.habi-insert-row {
+  height: 4px;
+  border-radius: 2px;
 }
 
 .habi-drop-placeholder {

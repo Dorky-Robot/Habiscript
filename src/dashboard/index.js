@@ -329,6 +329,12 @@ function createDashboard(el, opts = {}) {
   }
 
   // --- Widget drag-to-reorder ---
+  //
+  // Drop zones:
+  //   - Left edge (first 20%) of a cell   → insert before that cell
+  //   - Right edge (last 20%) of a cell   → insert after that cell
+  //   - Center (middle 60%) of a cell     → swap with that cell
+  //   - Bottom 40px of dashboard          → create new row with the widget
 
   function startWidgetDrag(e, cellId) {
     e.preventDefault();
@@ -336,26 +342,27 @@ function createDashboard(el, opts = {}) {
     if (!widgetEl) return;
 
     widgetEl.classList.add("dragging");
-    let currentDropTarget = null;
+    let indicator = null; // insertion line element
+    let lastDrop = null;  // { type: "swap"|"insert-before"|"insert-after"|"new-row", targetCellId, targetRowId }
 
     function onMove(e) {
       const x = e.clientX ?? e.touches?.[0]?.clientX;
       const y = e.clientY ?? e.touches?.[0]?.clientY;
       if (x === undefined || y === undefined) return;
 
-      // Find cell under cursor (excluding the dragged widget's cell)
-      const target = findDropTarget(x, y, cellId);
+      clearDropFeedback();
+      lastDrop = findDropZone(x, y, cellId);
 
-      if (target !== currentDropTarget) {
-        if (currentDropTarget) {
-          const prevCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
-          if (prevCell) prevCell.classList.remove("drop-target");
-        }
-        currentDropTarget = target;
-        if (currentDropTarget) {
-          const nextCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
-          if (nextCell) nextCell.classList.add("drop-target");
-        }
+      if (!lastDrop) return;
+
+      if (lastDrop.type === "swap") {
+        const cellEl = el.querySelector(`[data-cell-id="${lastDrop.targetCellId}"]`);
+        if (cellEl) cellEl.classList.add("drop-target");
+      } else if (lastDrop.type === "insert-before" || lastDrop.type === "insert-after") {
+        const cellEl = el.querySelector(`[data-cell-id="${lastDrop.targetCellId}"]`);
+        if (cellEl) showInsertIndicator(cellEl, lastDrop.type === "insert-before" ? "left" : "right");
+      } else if (lastDrop.type === "new-row") {
+        showNewRowIndicator();
       }
     }
 
@@ -366,48 +373,149 @@ function createDashboard(el, opts = {}) {
       document.removeEventListener("touchend", onUp);
 
       widgetEl.classList.remove("dragging");
-      if (currentDropTarget) {
-        const prevCell = el.querySelector(`[data-cell-id="${currentDropTarget}"]`);
-        if (prevCell) prevCell.classList.remove("drop-target");
-        swapCells(cellId, currentDropTarget);
-      }
+      clearDropFeedback();
+
+      if (lastDrop) executeDrop(cellId, lastDrop);
     }
 
     document.addEventListener("mousemove", onMove);
     document.addEventListener("mouseup", onUp);
     document.addEventListener("touchmove", onMove, { passive: false });
     document.addEventListener("touchend", onUp);
+
+    function clearDropFeedback() {
+      el.querySelectorAll(".drop-target").forEach((e) => e.classList.remove("drop-target"));
+      if (indicator) { indicator.remove(); indicator = null; }
+    }
+
+    function showInsertIndicator(cellEl, side) {
+      indicator = document.createElement("div");
+      indicator.className = "habi-insert-indicator";
+      const rect = cellEl.getBoundingClientRect();
+      const dashRect = el.getBoundingClientRect();
+      indicator.style.position = "absolute";
+      indicator.style.top = (rect.top - dashRect.top) + "px";
+      indicator.style.height = rect.height + "px";
+      indicator.style.left = (side === "left"
+        ? rect.left - dashRect.left - 2
+        : rect.right - dashRect.left - 2) + "px";
+      indicator.style.width = "4px";
+      el.appendChild(indicator);
+    }
+
+    function showNewRowIndicator() {
+      indicator = document.createElement("div");
+      indicator.className = "habi-insert-indicator habi-insert-row";
+      const addBtn = el.querySelector(".habi-add-row");
+      if (addBtn) {
+        const btnRect = addBtn.getBoundingClientRect();
+        const dashRect = el.getBoundingClientRect();
+        indicator.style.position = "absolute";
+        indicator.style.top = (btnRect.top - dashRect.top - 2) + "px";
+        indicator.style.left = "4px";
+        indicator.style.right = "4px";
+        indicator.style.height = "4px";
+        indicator.style.width = "auto";
+      }
+      el.appendChild(indicator);
+    }
   }
 
-  function findDropTarget(x, y, excludeCellId) {
+  function findDropZone(x, y, excludeCellId) {
     const cells = el.querySelectorAll(".habi-cell");
-    for (const cell of cells) {
-      if (cell.dataset.cellId === excludeCellId) continue;
-      const rect = cell.getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-        return cell.dataset.cellId;
+
+    for (const cellEl of cells) {
+      if (cellEl.dataset.cellId === excludeCellId) continue;
+      const rect = cellEl.getBoundingClientRect();
+      if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) continue;
+
+      const rowId = cellEl.parentElement?.dataset.rowId;
+      const row = layout.rows.find((r) => r.id === rowId);
+
+      // Check if the target row is already at max capacity for inserts
+      const relX = (x - rect.left) / rect.width;
+
+      if (relX < 0.2 && row && row.cells.length < 4) {
+        return { type: "insert-before", targetCellId: cellEl.dataset.cellId, targetRowId: rowId };
+      } else if (relX > 0.8 && row && row.cells.length < 4) {
+        return { type: "insert-after", targetCellId: cellEl.dataset.cellId, targetRowId: rowId };
+      } else {
+        return { type: "swap", targetCellId: cellEl.dataset.cellId };
       }
     }
+
+    // Check if cursor is in the "add row" area at the bottom
+    const addBtn = el.querySelector(".habi-add-row");
+    if (addBtn) {
+      const rect = addBtn.getBoundingClientRect();
+      if (x >= rect.left && x <= rect.right && y >= rect.top - 20 && y <= rect.bottom) {
+        return { type: "new-row" };
+      }
+    }
+
     return null;
   }
 
-  function swapCells(cellIdA, cellIdB) {
-    let cellA = null, cellB = null;
-    let rowA = null, rowB = null;
-    let idxA = -1, idxB = -1;
+  function executeDrop(sourceCellId, drop) {
+    // Find source cell and remove it from its row
+    let sourceCell = null;
+    let sourceRow = null;
+    let sourceIdx = -1;
 
     for (const row of layout.rows) {
-      for (let i = 0; i < row.cells.length; i++) {
-        if (row.cells[i].id === cellIdA) { cellA = row.cells[i]; rowA = row; idxA = i; }
-        if (row.cells[i].id === cellIdB) { cellB = row.cells[i]; rowB = row; idxB = i; }
+      const idx = row.cells.findIndex((c) => c.id === sourceCellId);
+      if (idx !== -1) {
+        sourceCell = row.cells[idx];
+        sourceRow = row;
+        sourceIdx = idx;
+        break;
       }
     }
+    if (!sourceCell) return;
 
-    if (!cellA || !cellB) return;
+    if (drop.type === "swap") {
+      // Swap source and target
+      let targetRow = null, targetIdx = -1;
+      for (const row of layout.rows) {
+        const idx = row.cells.findIndex((c) => c.id === drop.targetCellId);
+        if (idx !== -1) { targetRow = row; targetIdx = idx; break; }
+      }
+      if (!targetRow) return;
 
-    // Swap in layout
-    rowA.cells[idxA] = cellB;
-    rowB.cells[idxB] = cellA;
+      const targetCell = targetRow.cells[targetIdx];
+      sourceRow.cells[sourceIdx] = targetCell;
+      targetRow.cells[targetIdx] = sourceCell;
+    } else if (drop.type === "insert-before" || drop.type === "insert-after") {
+      // Remove from source
+      sourceRow.cells.splice(sourceIdx, 1);
+
+      // Find target position
+      const targetRow = layout.rows.find((r) => r.id === drop.targetRowId);
+      if (!targetRow) return;
+      const targetIdx = targetRow.cells.findIndex((c) => c.id === drop.targetCellId);
+      if (targetIdx === -1) return;
+
+      // Insert at position
+      const insertIdx = drop.type === "insert-before" ? targetIdx : targetIdx + 1;
+      targetRow.cells.splice(insertIdx, 0, sourceCell);
+
+      // Clean up empty source row
+      if (sourceRow.cells.length === 0) {
+        layout.rows = layout.rows.filter((r) => r.id !== sourceRow.id);
+      }
+    } else if (drop.type === "new-row") {
+      // Remove from source
+      sourceRow.cells.splice(sourceIdx, 1);
+      if (sourceRow.cells.length === 0) {
+        layout.rows = layout.rows.filter((r) => r.id !== sourceRow.id);
+      }
+      // Create new row with the widget
+      layout.rows.push({
+        id: generateId(),
+        height: null,
+        cells: [sourceCell],
+      });
+    }
 
     notifyChange();
     render();
