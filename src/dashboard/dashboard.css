@@ -185,10 +185,17 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
+  background: color-mix(in srgb, var(--habi-widget-bg, #1a1a1a) 70%, white);
+  border-bottom: 1px solid var(--habi-border, #2a2a2a);
+}
+
+.habi-draggable:hover {
+  background: color-mix(in srgb, var(--habi-widget-bg, #1a1a1a) 60%, white);
 }
 
 .habi-draggable:active {
   cursor: grabbing;
+  background: color-mix(in srgb, var(--habi-widget-bg, #1a1a1a) 55%, white);
 }
 
 /* Minimal fallback drag strip when widget has no toolbar */
