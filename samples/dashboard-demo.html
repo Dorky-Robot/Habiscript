@@ -51,7 +51,7 @@
       height: 100%;
       overflow: hidden;
     }
-    .demo-widget-header {
+    .demo-widget-header habi-toolbar {
       padding: 8px 12px;
       border-bottom: 1px solid #333;
       font-size: 0.8rem;
@@ -62,7 +62,7 @@
       background: #1e1e22;
       flex-shrink: 0;
     }
-    .demo-widget-header .dot {
+    .demo-widget-header habi-toolbar .dot {
       width: 8px; height: 8px; border-radius: 50%;
     }
     .dot-green { background: #4ade80; }
@@ -124,7 +124,7 @@
         const w = document.createElement("div");
         w.className = "demo-widget";
         w.innerHTML = `
-          <div class="demo-widget-header">
+          <div class="demo-widget-header habi-toolbar">
             <span class="dot dot-blue"></span>
             yolo — ${ctx.cwd || "/work"}
           </div>
@@ -149,7 +149,7 @@
         const w = document.createElement("div");
         w.className = "demo-widget";
         w.innerHTML = `
-          <div class="demo-widget-header">
+          <div class="demo-widget-header habi-toolbar">
             <span class="dot dot-green"></span>
             terminal — ${ctx.session || "dev"}
           </div>
@@ -176,7 +176,7 @@
         const w = document.createElement("div");
         w.className = "demo-widget";
         w.innerHTML = `
-          <div class="demo-widget-header">
+          <div class="demo-widget-header habi-toolbar">
             <span class="dot dot-amber"></span>
             ${ctx.title || "status"}
           </div>

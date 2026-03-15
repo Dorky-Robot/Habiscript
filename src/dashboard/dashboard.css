@@ -174,45 +174,34 @@
   flex: 1;
 }
 
-/* --- Widget drag handle (top-left grip icon) --- */
+/* --- Toolbar as drag handle --- */
 .habi-widget-container {
   position: relative;
 }
 
-.habi-drag-handle {
-  width: 100%;
-  height: 12px;
+/* The widget's toolbar becomes the drag surface */
+.habi-draggable {
   cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  z-index: 5;
-  color: transparent;
-  font-size: 10px;
-  transition: background 0.15s ease, color 0.15s ease, height 0.15s ease;
-  border-radius: var(--habi-radius, 6px) var(--habi-radius, 6px) 0 0;
   user-select: none;
   -webkit-user-select: none;
   touch-action: none;
 }
 
-.habi-drag-dots {
-  letter-spacing: 2px;
-  line-height: 1;
-}
-
-.habi-drag-handle:hover {
-  background: var(--habi-border-hover, #444);
-  color: var(--habi-text-muted, #666);
-  height: 18px;
-}
-
-.habi-drag-handle:active {
+.habi-draggable:active {
   cursor: grabbing;
-  background: var(--habi-accent, #4a9eff);
-  color: #fff;
-  height: 18px;
+}
+
+/* Minimal fallback drag strip when widget has no toolbar */
+.habi-drag-strip {
+  width: 100%;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: var(--habi-radius, 6px) var(--habi-radius, 6px) 0 0;
+  transition: background 0.15s ease;
+}
+
+.habi-drag-strip:hover {
+  background: var(--habi-border-hover, #444);
 }
 
 /* --- Add buttons --- */

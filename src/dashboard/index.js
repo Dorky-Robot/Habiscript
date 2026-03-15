@@ -94,18 +94,11 @@ function createDashboard(el, opts = {}) {
               widgetEl.classList.add("habi-widget-error");
             }
           }
-          // Add drag handle bar for reordering (full-width, always visible)
-          if (!widgetEl.querySelector(".habi-drag-handle")) {
-            const grip = document.createElement("div");
-            grip.className = "habi-drag-handle";
-            grip.innerHTML = '<span class="habi-drag-dots">⠿</span>';
-            grip.title = "Drag to move";
-            // Stop propagation so widget content doesn't steal the event
-            grip.addEventListener("mousedown", (e) => { e.stopPropagation(); });
-            grip.addEventListener("touchstart", (e) => { e.stopPropagation(); }, { passive: false });
-            addDragListeners(grip, (e) => startWidgetDrag(e, cell.id));
-            widgetEl.prepend(grip);
-          }
+          // Wire drag on the widget's toolbar (the widget owns the toolbar,
+          // the dashboard just makes it draggable — like dragging a window
+          // by its title bar). Looks for [data-habi-toolbar] or .habi-toolbar.
+          // Falls back to a minimal drag strip if the widget has no toolbar.
+          wireToolbarDrag(widgetEl, cell.id);
           cellEl.appendChild(widgetEl);
         } else {
           // Empty cell — show add button
@@ -223,6 +216,39 @@ function createDashboard(el, opts = {}) {
       }
     }
     return false;
+  }
+
+  // --- Toolbar drag wiring ---
+
+  function wireToolbarDrag(widgetEl, cellId) {
+    // Skip if already wired
+    if (widgetEl._habiDragWired) return;
+    widgetEl._habiDragWired = true;
+
+    // Find the widget's toolbar
+    let toolbar = widgetEl.querySelector("[data-habi-toolbar], .habi-toolbar");
+
+    if (!toolbar) {
+      // No toolbar — add a minimal drag strip as fallback
+      toolbar = document.createElement("div");
+      toolbar.className = "habi-drag-strip";
+      widgetEl.prepend(toolbar);
+    }
+
+    toolbar.classList.add("habi-draggable");
+    toolbar.style.cursor = "grab";
+
+    toolbar.addEventListener("mousedown", (e) => {
+      // Don't drag if clicking a button/input inside the toolbar
+      if (e.target.closest("button, input, select, textarea, a")) return;
+      e.stopPropagation();
+      startWidgetDrag(e, cellId);
+    });
+    toolbar.addEventListener("touchstart", (e) => {
+      if (e.target.closest("button, input, select, textarea, a")) return;
+      e.stopPropagation();
+      startWidgetDrag(normalizeTouchEvent(e), cellId);
+    }, { passive: false });
   }
 
   // --- Resize handling (mouse + touch) ---
