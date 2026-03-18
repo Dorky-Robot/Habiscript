@@ -2,6 +2,8 @@
 
 # Habiscript
 
+[![Discord](https://img.shields.io/discord/1483879594619568291?color=5865F2&label=Discord&logo=discord&logoColor=white)](https://discord.gg/QSdjPhbU)
+
 habi: Tagalog word for woven.
 
 For some time now, many of the existing model frameworks have been built on the fundamental assumption that HTML, CSS, and JS are related yet separate technologies. However, over time, the responsibilities of these technologies have begun to blur into each other. CSS has been extended to the point where it crosses beyond just styles and into the domain previously reserved for JS. At the same time, HTML and JS have continued in ways that make them intrinsically coupled, such as the case for canvas, `webGL,` and other more advanced uses of HTML.
