@@ -21,7 +21,7 @@
     "arrays"
   ],
   "author": "Felix Flores",
-  "license": "MIT",
+  "license": "MIT OR Apache-2.0",
   "bugs": {
     "url": "https://github.com/felixflores/Habiscript/issues"
   },
